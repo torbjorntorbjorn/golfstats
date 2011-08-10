@@ -39,4 +39,4 @@ def coverage():
 
 
 def flake8():
-    local("find . -name '*.py' -exec flake8 {} \;")
+    local("find . -name '*.py' -exec flake8 {} \;", False)
