@@ -24,10 +24,8 @@ def test():
     args = _get_args()
     res = local(" ".join(args), False)
 
-    # Requires higher version of fabric then
-    # is carried in Debian Squeeze
-    #if res.succeeded:
-    #    flake8()
+    if res.return_code == 0:
+        flake8()
 
 
 def coverage():
