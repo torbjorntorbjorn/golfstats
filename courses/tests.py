@@ -5,24 +5,25 @@ from courses.models import Arena, Tee, Basket, Hole, Course, CourseHole
 
 NUM_HOLES = 18
 
-def make_arenas(count = 1):
+
+def make_arenas(count=1):
     arenas = []
 
     for i in range(0, count):
         c = Arena.objects.create(
-            name = "Test arena %s" % (i),
+            name="Test arena %s" % (i),
         )
 
         arenas.append(c)
     return arenas
 
 
-def make_tees(arena, count = 1):
+def make_tees(arena, count=1):
     tees = []
 
     for i in range(0, count):
         t = Tee.objects.create(
-            description = "Test description %s" % (i),
+            description="Test description %s" % (i),
             arena=arena,
         )
 
@@ -30,13 +31,13 @@ def make_tees(arena, count = 1):
     return tees
 
 
-def make_baskets(arena, count = 1):
+def make_baskets(arena, count=1):
     baskets = []
 
     for i in range(0, count):
         b = Basket.objects.create(
             arena=arena,
-            description = "Test description %s" % (i),
+            description="Test description %s" % (i),
         )
 
         baskets.append(b)
@@ -50,6 +51,7 @@ def make_hole(tee, basket, par=3):
         par=par,
     )
 
+
 def make_course(arena, count=1):
     courses = []
 
@@ -61,6 +63,7 @@ def make_course(arena, count=1):
 
         courses.append(c)
     return courses
+
 
 def make_course_holes(course, holes):
     course_holes = []
@@ -77,7 +80,6 @@ def make_course_holes(course, holes):
     return course_holes
 
 
-
 def make_a_whole_arena():
     arena = make_arenas()[0]
 
@@ -89,11 +91,11 @@ def make_a_whole_arena():
         hole = make_hole(tees[i], baskets[i])
         holes.append(hole)
 
-
     course = make_course(arena)[0]
     make_course_holes(course, holes)
 
     return arena
+
 
 class ArenaTest(TestCase):
     def test_courses_basic(self):

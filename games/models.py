@@ -4,6 +4,7 @@ from django.db import models
 from courses.models import Course, CourseHole
 from players.models import Player
 
+
 class Game(models.Model):
     course = models.ForeignKey(Course)
     players = models.ManyToManyField(Player)

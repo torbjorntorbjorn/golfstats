@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 
-from games.models import Game, GameHole
+from games.models import Game
 
 from courses.tests import make_arenas, make_course
 from players.tests import make_players
@@ -18,4 +18,4 @@ class GamesTest(TestCase):
         )
         game.players = players
 
-        self.assertNotEqual(game,id, None)
+        self.assertNotEqual(game.id, None)
