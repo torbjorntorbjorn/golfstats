@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.core.exceptions import ValidationError
 
 from courses.models import Arena, Tee, Basket, Hole, Course, CourseHole
 
@@ -115,3 +116,40 @@ class ArenaTest(TestCase):
         holes = course.coursehole_set.all()
 
         self.assertEqual(len(holes), 18)
+
+    def test_hole_model_validation(self):
+        arena1 = make_arenas()[0]
+        arena2 = make_arenas()[0]
+
+        tee = make_tees(arena1)[0]
+        basket = make_baskets(arena2)[0]
+
+        hole = Hole(
+            tee=tee,
+            basket=basket,
+            par=3,
+        )
+
+        self.assertRaises(ValidationError,
+            hole.save)
+
+    def test_coursehole_model_validation(self):
+        arena1 = make_arenas()[0]
+        arena2 = make_arenas()[0]
+
+        tee = make_tees(arena1)[0]
+        basket = make_baskets(arena1)[0]
+
+        hole = make_hole(tee, basket)
+
+        course = make_course(arena2)[0]
+
+        coursehole = CourseHole(
+            course=course,
+            hole=hole,
+            order=1,
+            name="Test hole",
+        )
+
+        self.assertRaises(ValidationError,
+            coursehole.save)
