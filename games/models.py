@@ -102,3 +102,7 @@ class GameHole(models.Model):
     coursehole = models.ForeignKey(CourseHole)
     throws = models.IntegerField()
     ob_throws = models.IntegerField()
+
+    @property
+    def score(self):
+        return self.coursehole.hole.par - self.throws
