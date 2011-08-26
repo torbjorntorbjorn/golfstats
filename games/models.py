@@ -41,6 +41,10 @@ class Game(models.Model):
             raise ValidationError("Can only finish game when state is '%s'"
                 % (self.STATE_STARTED))
 
+        # We require players in order to finish
+        if self.players.count() == 0:
+            raise ValidationError("Game must have players to finish")
+
         self.state = self.STATE_FINISHED
 
     def abort(self):

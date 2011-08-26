@@ -26,6 +26,20 @@ class GamesTest(TestCase):
         game = make_game()
         self.assertNotEqual(game.id, None)
 
+    def test_game_requires_players(self):
+        arena = make_arenas()[0]
+        course = make_course(arena)[0]
+
+        game = Game(
+            course=course,
+        )
+        game.save()
+
+        game.start()
+
+        # Check that game doesn't finish without players
+        self.assertRaises(ValidationError, game.finish)
+
     def test_game_start(self):
         game = make_game()
 
