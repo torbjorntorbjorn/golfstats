@@ -57,6 +57,20 @@ class GamesTest(TestCase):
         # Check that game doesn't finish without players
         self.assertRaises(ValidationError, game.finish)
 
+    def test_game_completed(self):
+        game = make_game()
+
+        game.start()
+        game.save()
+
+        # Check that game without gameholes will not finish
+        self.assertRaises(ValidationError, game.finish)
+
+        play_game(game)
+
+        game.finish()
+        game.save()
+
     def test_game_start(self):
         game = make_game()
 
@@ -81,6 +95,7 @@ class GamesTest(TestCase):
         # Check that game is started
         self.assertEqual(game.state, game.STATE_STARTED)
 
+        play_game(game)
         game.finish()
         game.save()
 
