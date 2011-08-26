@@ -99,6 +99,6 @@ class Game(models.Model):
 class GameHole(models.Model):
     player = models.ForeignKey(Player)
     game = models.ForeignKey(Game)
-    hole = models.ForeignKey(CourseHole)
+    coursehole = models.ForeignKey(CourseHole)
     throws = models.IntegerField()
     ob_throws = models.IntegerField()

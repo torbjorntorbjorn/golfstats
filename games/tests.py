@@ -32,7 +32,7 @@ def play_game(game):
             GameHole.objects.create(
                 player=player,
                 game=game,
-                hole=coursehole,
+                coursehole=coursehole,
                 throws=coursehole.hole.par,
                 ob_throws=0,
             )
