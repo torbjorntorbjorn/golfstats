@@ -92,16 +92,16 @@ class GamesTest(TestCase):
             self.assertIn(player, finished_games_players)
 
         for finished_game in finished_games:
-            courseholes = [ h for h in game.gamehole_set.all()
-                if h.player == finished_game.player ]
+            courseholes = [h for h in game.gamehole_set.all()
+                if h.player == finished_game.player]
 
-            throws = sum([ h.throws for h in courseholes ])
+            throws = sum([h.throws for h in courseholes])
             self.assertEqual(finished_game.throws, throws)
 
-            score = sum([ h.score for h in courseholes ])
+            score = sum([h.score for h in courseholes])
             self.assertEqual(finished_game.score, score)
 
-            ob_throws = sum([ h.ob_throws for h in courseholes ])
+            ob_throws = sum([h.ob_throws for h in courseholes])
             self.assertEqual(finished_game.ob_throws, ob_throws)
 
     def test_game_start(self):
