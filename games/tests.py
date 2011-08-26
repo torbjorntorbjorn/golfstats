@@ -71,6 +71,39 @@ class GamesTest(TestCase):
         game.finish()
         game.save()
 
+    def test_finished_games_have_been_created(self):
+        game = make_game()
+
+        game.start()
+        game.save()
+
+        play_game(game)
+
+        game.finish()
+        game.save()
+
+        # Check that all players have a FinishedGame
+        finished_games = game.finishedgame_set.all()
+        finished_games_players = [x.player for x in finished_games]
+
+        players = game.players.all()
+
+        for player in players:
+            self.assertIn(player, finished_games_players)
+
+        for finished_game in finished_games:
+            courseholes = [ h for h in game.gamehole_set.all()
+                if h.player == finished_game.player ]
+
+            throws = sum([ h.throws for h in courseholes ])
+            self.assertEqual(finished_game.throws, throws)
+
+            score = sum([ h.score for h in courseholes ])
+            self.assertEqual(finished_game.score, score)
+
+            ob_throws = sum([ h.ob_throws for h in courseholes ])
+            self.assertEqual(finished_game.ob_throws, ob_throws)
+
     def test_game_start(self):
         game = make_game()
 

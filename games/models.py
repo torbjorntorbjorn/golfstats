@@ -54,6 +54,9 @@ class Game(models.Model):
             raise ValidationError(
                 "Game is not valid, not all players have played all holes")
 
+        # Generate FinishedGame models
+        self._create_finished_games()
+
         self.state = self.STATE_FINISHED
 
     def abort(self):
@@ -94,6 +97,46 @@ class Game(models.Model):
                         player))
 
         return True
+
+    def _create_finished_games(self):
+        # Maps players and FinishedGames
+        finished_games = {}
+
+        # Iterate all gameholes
+        for gamehole in self.gamehole_set.all():
+
+            # If player hasn't been seen, create a FinishedGame
+            if gamehole.player not in finished_games:
+                finished_games[gamehole.player] = FinishedGame(
+                    player=gamehole.player,
+                    game=self,
+                    score=0,
+                    throws=0,
+                    ob_throws=0,
+                )
+
+            # Shorthand
+            g = finished_games[gamehole.player]
+
+            # Tally up
+            g.score += gamehole.score
+            g.throws += gamehole.throws
+            g.ob_throws += gamehole.ob_throws
+
+        # Save all FinishedGames
+        for player, game in finished_games.items():
+            game.save()
+
+
+# This is a de-normalization that will need maintenance,
+# but greatly simplifies querying for interesting stuff
+class FinishedGame(models.Model):
+    player = models.ForeignKey(Player)
+    game = models.ForeignKey(Game)
+
+    score = models.IntegerField()
+    throws = models.IntegerField()
+    ob_throws = models.IntegerField()
 
 
 class GameHole(models.Model):
