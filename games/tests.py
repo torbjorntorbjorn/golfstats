@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from django.core.exceptions import ValidationError
 
-from games.models import Game
+from games.models import Game, GameHole
 
 from courses.tests import make_arenas, make_course
 from players.tests import make_players
@@ -19,6 +19,23 @@ def make_game():
     game.players = players
 
     return game
+
+
+def play_game(game):
+    players = game.players.all()
+    courseholes = game.course.coursehole_set.all()
+
+    # Play all holes for all players
+    for coursehole in courseholes:
+        for player in players:
+            # Play all holes on par
+            GameHole.objects.create(
+                player=player,
+                game=game,
+                hole=coursehole,
+                throws=coursehole.hole.par,
+                ob_throws=0,
+            )
 
 
 class GamesTest(TestCase):
