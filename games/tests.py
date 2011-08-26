@@ -4,17 +4,17 @@ from django.core.exceptions import ValidationError
 
 from games.models import Game, GameHole
 
-from courses.tests import make_arenas, make_course
+from courses.tests import make_a_whole_arena, make_course
 from players.tests import make_players
 
 
 def make_game():
-    arena = make_arenas()[0]
-    course = make_course(arena)[0]
+    arena = make_a_whole_arena()
     players = make_players(5)
 
     game = Game.objects.create(
-        course=course,
+        # TODO: This doesn't look greait
+        course=arena.course_set.all()[0],
     )
     game.players = players
 
@@ -44,7 +44,7 @@ class GamesTest(TestCase):
         self.assertNotEqual(game.id, None)
 
     def test_game_requires_players(self):
-        arena = make_arenas()[0]
+        arena = make_a_whole_arena()
         course = make_course(arena)[0]
 
         game = Game(
