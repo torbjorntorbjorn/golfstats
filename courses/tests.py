@@ -24,7 +24,7 @@ def make_tees(arena, count=1):
 
     for i in range(0, count):
         t = Tee.objects.create(
-            description="Test description %s" % (i),
+            description="Test tee %s" % (i),
             arena=arena,
         )
 
@@ -38,7 +38,7 @@ def make_baskets(arena, count=1):
     for i in range(0, count):
         b = Basket.objects.create(
             arena=arena,
-            description="Test description %s" % (i),
+            description="Test basket %s" % (i),
         )
 
         baskets.append(b)
