@@ -97,7 +97,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'golfstats.urls'
+ROOT_URLCONF = 'golfstats.frontend.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -119,6 +119,7 @@ INSTALLED_APPS = (
 
     'django_extensions',
     'django_nose',
+    'frontend',
     'courses',
     'players',
     'games',
