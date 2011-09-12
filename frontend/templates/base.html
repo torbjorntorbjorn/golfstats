@@ -1,12 +1,70 @@
+{% load url from future %}
 <!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
 
     <title>{% block title %}Golfstats{% endblock %} - Golfstats</title>
+    <link rel="stylesheet" href="{{ STATIC_URL }}frontend.css">
 </head>
 
-<body>{% block content %}Content block{% endblock %}
+<body>
+
+    <nav id="nav-main">
+        <ul>
+            <li>
+                <p>Games</p>
+                <ul>
+                    <li><a href="{% url "golfstats-games-games" %}">List</a></li>
+                    <li><a href="{% url "golfstats-games-games-create" %}">Create</a></li>
+                </ul>
+            </li>
+            <li>
+                <p>Arenas</p>
+                <ul>
+                    <li><a href="{% url "golfstats-courses-arenas" %}">List</a></li>
+                    <li><a href="{% url "golfstats-courses-arenas-create" %}">Create</a></li>
+                </ul>
+            </li>
+            <li>
+                <p>Courses</p>
+                <ul>
+                    <li><a href="{% url "golfstats-courses-courses" %}">List</a></li>
+                    <li><a href="{% url "golfstats-courses-course-create" %}">Create</a></li>
+                </ul>
+            </li>
+            <li>
+                <p>Courseholes</p>
+                <ul>
+                    <li><a href="{% url "golfstats-courses-courseholes" %}">List</a></li>
+                    <li><a href="{% url "golfstats-courses-coursehole-create" %}">Create</a></li>
+                </ul>
+            </li>
+            <li>
+                <p>Baskets</p>
+                <ul>
+                    <li><a href="{% url "golfstats-courses-baskets" %}">List</a></li>
+                    <li><a href="{% url "golfstats-courses-baskets-create" %}">Create</a></li>
+                </ul>
+            </li>
+            <li>
+                <p>Holes</p>
+                <ul>
+                    <li><a href="{% url "golfstats-courses-holes" %}">List</a></li>
+                    <li><a href="{% url "golfstats-courses-hole-create" %}">Create</a></li>
+                </ul>
+            </li>
+            <li>
+                <p>Tees</p>
+                <ul>
+                    <li><a href="{% url "golfstats-courses-tees" %}">List</a></li>
+                    <li><a href="{% url "golfstats-courses-tee-create" %}">Create</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    {% block content %}Content block{% endblock %}
     {% comment %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     {% endcomment %}
