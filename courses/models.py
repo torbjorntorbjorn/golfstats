@@ -23,7 +23,7 @@ class Hole(models.Model):
 
     # Custom validation
     def clean(self):
-        if self.tee.arena is not self.basket.arena:
+        if self.tee.arena.id != self.basket.arena.id:
             raise ValidationError("Tee and basket not in the same arena")
 
     def save(self, *kargs, **kwargs):
