@@ -5,22 +5,17 @@
 <h1>Courseholes</h1>
 
 <p>
-    {% comment %}
-    <a href="{% url "golfstats-courses-arenas-create" %}">
-        Create new arena
+    <a href="{% url "golfstats-courses-coursehole-create" %}">
+        Create new coursehole
     </a>
-    {% endcomment %}
 </p>
 
 <ul>
 {% for coursehole in courseholes %}
     <li>
-        {% comment %}
-        <a href="{% url "golfstats-courses-arenas-detail" arena.id %}">
-            {{ arena }}
+        <a href="{% url "golfstats-courses-coursehole-detail" coursehole.id %}">
+            {{ coursehole }}
         </a>
-        {% endcomment %}
-        {{ coursehole }}
     </li>
 {% empty %}
     <li>No courseholes available</li>

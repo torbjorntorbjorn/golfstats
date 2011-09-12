@@ -5,21 +5,17 @@
 <h1>Games</h1>
 
 <p>
-{% comment %}
-    <a href="{% url "golfstats-courses-arenas-create" %}">
+    <a href="{% url "golfstats-games-games-create" %}">
         Create new arena
     </a>
-{% endcomment %}
 </p>
 
 <ul>
 {% for game in games %}
     <li>
-    {% comment %}
-        <a href="{% url "golfstats-courses-arenas-detail" arena.id %}">
-            {{ arena }}
+        <a href="{% url "golfstats-games-games-detail" game.id %}">
+            {{ game }}
         </a>
-        {% endcomment %}
     </li>
 {% empty %}
     <li>No games available</li>

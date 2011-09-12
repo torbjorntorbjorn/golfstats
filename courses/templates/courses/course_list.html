@@ -5,22 +5,17 @@
 <h1>Courses</h1>
 
 <p>
-    {% comment %}
-    <a href="{% url "golfstats-courses-arenas-create" %}">
-        Create new arena
+    <a href="{% url "golfstats-courses-course-create" %}">
+        Create new course
     </a>
-    {% endcomment %}
 </p>
 
 <ul>
 {% for course in courses %}
     <li>
-        {% comment %}
-        <a href="{% url "golfstats-courses-arenas-detail" arena.id %}">
-            {{ arena }}
+        <a href="{% url "golfstats-courses-course-detail" course.id %}">
+            {{ course }}
         </a>
-        {% endcomment %}
-        {{ course }}
     </li>
 {% empty %}
     <li>No courses available</li>

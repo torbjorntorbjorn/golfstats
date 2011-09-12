@@ -5,21 +5,17 @@
 <h1>Players</h1>
 
 <p>
-{% comment %}
-    <a href="{% url "golfstats-courses-arenas-create" %}">
-        Create new arena
+    <a href="{% url "golfstats-players-players-create" %}">
+        Create new player
     </a>
-{% endcomment %}
 </p>
 
 <ul>
 {% for player in players %}
     <li>
-    {% comment %}
-        <a href="{% url "golfstats-courses-arenas-detail" arena.id %}">
-            {{ arena }}
+        <a href="{% url "golfstats-players-players-detail" player.id %}">
+            {{ player }}
         </a>
-        {% endcomment %}
     </li>
 {% empty %}
     <li>No players available</li>
