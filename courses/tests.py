@@ -233,6 +233,7 @@ class ArenaFrontendTest(TestCase):
         renamed_arena = Arena.objects.get(name="new name")
         self.assertEqual(renamed_arena.id, arena.id)
 
+
 class TeeFrontendTest(TestCase):
     def setUp(self):
         self.arena = make_arenas()[0]
@@ -295,7 +296,6 @@ class TeeFrontendTest(TestCase):
         # have the same IDs
         renamed_tee = Tee.objects.get(description="new description")
         self.assertEqual(renamed_tee.id, tee.id)
-
 
     def test_delete(self):
         # Pull up a test arena
