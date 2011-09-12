@@ -570,3 +570,93 @@ class CourseFrontendTest(TestCase):
         # Check that we can't actually load the deleted instance
         self.assertRaises(Course.DoesNotExist,
             Course.objects.get, id=course.id)
+
+
+class CourseHoleFrontendTest(TestCase):
+    def setUp(self):
+        self.arena = make_arenas()[0]
+        self.course = make_course(self.arena)[0]
+        self.tee = make_tees(self.arena)[0]
+        self.basket = make_baskets(self.arena)[0]
+        self.hole = make_hole(self.tee, self.basket)
+
+    def test_index(self):
+        holes = [self.hole for x in range(5)]
+        courseholes = make_course_holes(self.course, holes)
+
+        c = Client()
+        r = c.get("/courseholes/")
+
+        self.assertEqual(r.status_code, 200)
+
+        context_courseholes = r.context_data["courseholes"]
+        for coursehole in context_courseholes:
+            self.assertIn(coursehole, courseholes)
+
+    def test_create(self):
+        c = Client()
+        r = c.get("/courseholes/create/")
+
+        self.assertContains(r, 'Create or update coursehole', count=1)
+
+        c = Client()
+        r = c.post('/courseholes/create/', {
+            "course": self.course.id,
+            "hole": self.hole.id,
+            "order": 0,
+            "name": "Test coursehole",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        self.assertEqual(
+            CourseHole.objects.filter(name="Test coursehole").count(), 1)
+
+    def test_detail(self):
+        coursehole = make_course_holes(self.course, [self.hole])[0]
+
+        c = Client()
+        r = c.get("/courseholes/%s/" % (coursehole.id))
+
+        self.assertContains(r, "Coursehole %s" % (coursehole.name), count=1)
+
+    def test_update(self):
+        coursehole = make_course_holes(self.course, [self.hole])[0]
+
+        c = Client()
+        r = c.get("/courseholes/%s/edit/" % (coursehole.id))
+
+        self.assertContains(r, coursehole.name, count=1)
+
+        c = Client()
+        r = c.post("/courseholes/%s/edit/" % (coursehole.id), {
+            "course": self.course.id,
+            "hole": self.hole.id,
+            "order": 0,
+            "name": "new name",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        # Ensure that our original and renamed arena
+        # have the same IDs
+        renamed_coursehole = CourseHole.objects.get(name="new name")
+        self.assertEqual(renamed_coursehole.id, coursehole.id)
+
+    def test_delete(self):
+        coursehole = make_course_holes(self.course, [self.hole])[0]
+
+        c = Client()
+        r = c.get("/courseholes/%s/delete/" % (coursehole.id))
+
+        self.assertContains(r, coursehole.name, count=1)
+
+        # Simply posting there should delete the instance
+        c = Client()
+        r = c.post("/courseholes/%s/delete/" % (coursehole.id))
+
+        self.assertEqual(r.status_code, 302)
+
+        # Check that we can't actually load the deleted instance
+        self.assertRaises(CourseHole.DoesNotExist,
+            CourseHole.objects.get, id=coursehole.id)

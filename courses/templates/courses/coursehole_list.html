@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+<h1>Courseholes</h1>
+
+<p>
+    {% comment %}
+    <a href="{% url "golfstats-courses-arenas-create" %}">
+        Create new arena
+    </a>
+    {% endcomment %}
+</p>
+
+<ul>
+{% for coursehole in courseholes %}
+    <li>
+        {% comment %}
+        <a href="{% url "golfstats-courses-arenas-detail" arena.id %}">
+            {{ arena }}
+        </a>
+        {% endcomment %}
+        {{ coursehole }}
+    </li>
+{% empty %}
+    <li>No courseholes available</li>
+{% endfor %}
+</ul>
+{% endblock %}
