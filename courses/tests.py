@@ -315,3 +315,88 @@ class TeeFrontendTest(TestCase):
         # Check that we can't actually load the deleted instance
         self.assertRaises(Tee.DoesNotExist,
             Tee.objects.get, id=tee.id)
+
+
+class HoleFrontendTest(TestCase):
+    def setUp(self):
+        self.arena = make_arenas()[0]
+        self.tee = make_tees(self.arena)[0]
+        self.basket = make_baskets(self.arena)[0]
+
+    def test_index(self):
+        holes = [make_hole(self.tee, self.basket) for x in range(5)]
+
+        c = Client()
+        r = c.get("/holes/")
+
+        self.assertEqual(r.status_code, 200)
+
+        context_tees = r.context_data["holes"]
+        for hole in context_tees:
+            self.assertIn(hole, holes)
+
+    def test_create(self):
+        c = Client()
+        r = c.get("/holes/create/")
+
+        self.assertContains(r, 'Create or update hole', count=1)
+
+        c = Client()
+        r = c.post('/holes/create/', {
+            "tee": self.tee.id,
+            "basket": self.basket.id,
+            "par": "1000",  # Funky test value
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        self.assertEqual(
+            Hole.objects.filter(par=1000).count(), 1)
+
+    def test_detail(self):
+        hole = make_hole(self.tee, self.basket, 3)
+
+        c = Client()
+        r = c.get("/holes/%s/" % (hole.id))
+
+        self.assertContains(r, "Hole %s" % (hole.id), count=1)
+
+    def test_update(self):
+        hole = make_hole(self.tee, self.basket, 3)
+
+        c = Client()
+        r = c.get("/holes/%s/edit/" % (hole.id))
+
+        self.assertContains(r, "Create or update hole", count=1)
+
+        c = Client()
+        r = c.post("/holes/%s/edit/" % (hole.id), {
+            "tee": self.tee.id,
+            "basket": self.basket.id,
+            "par": "1000",  # Funky test value
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        # Ensure that our original and renamed arena
+        # have the same IDs
+        renamed_hole = Hole.objects.get(par=1000)
+        self.assertEqual(renamed_hole.id, hole.id)
+
+    def test_delete(self):
+        hole = make_hole(self.tee, self.basket, 3)
+
+        c = Client()
+        r = c.get("/holes/%s/delete/" % (hole.id))
+
+        self.assertContains(r, "hole %s" % (hole.id), count=1)
+
+        # Simply posting there should delete the instance
+        c = Client()
+        r = c.post("/holes/%s/delete/" % (hole.id))
+
+        self.assertEqual(r.status_code, 302)
+
+        # Check that we can't actually load the deleted instance
+        self.assertRaises(Hole.DoesNotExist,
+            Hole.objects.get, id=hole.id)

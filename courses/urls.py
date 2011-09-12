@@ -6,7 +6,7 @@ from django.views.generic import (ListView,
                                   DeleteView,
                                   UpdateView,)
 
-from courses.models import Arena, Tee
+from courses.models import Arena, Tee, Hole
 
 urlpatterns = patterns('',
     url(r'^arenas/$', ListView.as_view(
@@ -62,4 +62,31 @@ urlpatterns = patterns('',
         context_object_name="tee",
         success_url=reverse_lazy('golfstats-courses-tees'),
     ), name="golfstats-courses-tee-delete"),
+
+    url(r'^holes/$', ListView.as_view(
+        model=Hole,
+        context_object_name="holes",
+    ), name="golfstats-courses-holes"),
+
+    url(r'^holes/create/$', CreateView.as_view(
+        model=Hole,
+        success_url=reverse_lazy('golfstats-courses-holes'),
+    ), name="golfstats-courses-hole-create"),
+
+    url(r'^holes/(?P<pk>\d+)/$', DetailView.as_view(
+        model=Hole,
+        context_object_name="hole",
+    ), name="golfstats-courses-hole-detail"),
+
+    url(r'^holes/(?P<pk>\d+)/edit/', UpdateView.as_view(
+        model=Hole,
+        context_object_name="hole",
+        success_url=reverse_lazy('golfstats-courses-holes'),
+    ), name="golfstats-courses-hole-detail"),
+
+    url(r'^holes/(?P<pk>\d+)/delete/$', DeleteView.as_view(
+        model=Hole,
+        context_object_name="hole",
+        success_url=reverse_lazy('golfstats-courses-holes'),
+    ), name="golfstats-courses-hole-delete"),
 )

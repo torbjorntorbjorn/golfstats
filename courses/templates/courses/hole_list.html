@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+<h1>Holes</h1>
+
+<p>
+    <a href="{% url "golfstats-courses-hole-create" %}">
+        Create new hole
+    </a>
+</p>
+
+<ul>
+{% for hole in holes %}
+    <li>
+        <a href="{% url "golfstats-courses-hole-detail" hole.id %}">
+            {{ hole }}
+        </a>
+    </li>
+{% empty %}
+    <li>No holes available</li>
+{% endfor %}
+</ul>
+{% endblock %}
