@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+<h1>Baskets</h1>
+
+<p>
+    <a href="{% url "golfstats-courses-baskets-create" %}">
+        Create new basket
+    </a>
+</p>
+
+<ul>
+{% for basket in baskets %}
+    <li>
+        <a href="{% url "golfstats-courses-baskets-detail" basket.id %}">
+            {{ basket }}
+        </a>
+    </li>
+{% empty %}
+    <li>No baskets available</li>
+{% endfor %}
+</ul>
+{% endblock %}

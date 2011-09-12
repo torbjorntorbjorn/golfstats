@@ -6,7 +6,7 @@ from django.views.generic import (ListView,
                                   DeleteView,
                                   UpdateView,)
 
-from courses.models import Arena, Tee, Hole
+from courses.models import Arena, Tee, Hole, Basket
 
 urlpatterns = patterns('',
     url(r'^arenas/$', ListView.as_view(
@@ -89,4 +89,32 @@ urlpatterns = patterns('',
         context_object_name="hole",
         success_url=reverse_lazy('golfstats-courses-holes'),
     ), name="golfstats-courses-hole-delete"),
+
+    # Basket CRUD
+    url(r'^baskets/$', ListView.as_view(
+        model=Basket,
+        context_object_name="baskets",
+    ), name="golfstats-courses-baskets"),
+
+    url(r'^baskets/create/$', CreateView.as_view(
+        model=Basket,
+        success_url=reverse_lazy('golfstats-courses-baskets'),
+    ), name="golfstats-courses-baskets-create"),
+
+    url('^baskets/(?P<pk>\d+)/$', DetailView.as_view(
+        model=Basket,
+        context_object_name="basket",
+    ), name="golfstats-courses-baskets-detail"),
+
+    url(r'^baskets/(?P<pk>\d+)/edit/', UpdateView.as_view(
+        model=Basket,
+        context_object_name="basket",
+        success_url=reverse_lazy('golfstats-courses-baskets'),
+    ), name="golfstats-courses-baskets-edit"),
+
+    url('^baskets/(?P<pk>\d+)/delete/$', DeleteView.as_view(
+        model=Basket,
+        context_object_name="basket",
+        success_url=reverse_lazy('golfstats-courses-baskets'),
+    ), name="golfstats-courses-baskets-delete"),
 )

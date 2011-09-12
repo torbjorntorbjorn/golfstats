@@ -400,3 +400,90 @@ class HoleFrontendTest(TestCase):
         # Check that we can't actually load the deleted instance
         self.assertRaises(Hole.DoesNotExist,
             Hole.objects.get, id=hole.id)
+
+
+class BasketFrontendTest(TestCase):
+    def setUp(self):
+        self.arena = make_arenas()[0]
+
+    def test_create(self):
+        c = Client()
+        r = c.get("/baskets/create/")
+
+        self.assertContains(r, 'Create or update basket', count=1)
+
+        c = Client()
+        r = c.post('/baskets/create/', {
+            "arena": self.arena.id,
+            "description": "Some basket description",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        self.assertEqual(
+            Basket.objects.filter(
+                description="Some basket description").count(), 1)
+
+    def test_index(self):
+        baskets = make_baskets(self.arena)
+
+        c = Client()
+        r = c.get('/baskets/')
+
+        self.assertEquals(r.status_code, 200)
+
+        context_baskets = r.context_data['baskets']
+        for basket in context_baskets:
+            self.assertIn(basket, baskets)
+
+    def test_detail(self):
+        # Pull up a test basket
+        basket = make_baskets(self.arena)[0]
+
+        c = Client()
+        r = c.get("/baskets/%s/" % (basket.id))
+
+        self.assertContains(r, "Basket %s" % basket.id, count=1)
+
+    def test_delete(self):
+        # Pull up a test basket
+        basket = make_baskets(self.arena)[0]
+
+        c = Client()
+        r = c.get("/baskets/%s/delete/" % (basket.id))
+
+        self.assertContains(r, "Delete basket %s" % basket.id, count=1)
+
+        # Simply posting there should delete the instance
+        c = Client()
+        r = c.post("/baskets/%s/delete/" % (basket.id))
+
+        self.assertEqual(r.status_code, 302)
+
+        # Check that we can't actually load the deleted instance
+        self.assertRaises(Basket.DoesNotExist,
+            Basket.objects.get, id=basket.id)
+
+    def test_update(self):
+        # Pull up a test basket
+        basket = make_baskets(self.arena)[0]
+
+        c = Client()
+        r = c.get("/baskets/%s/edit/" % (basket.id))
+
+        self.assertContains(r, basket.description, count=1)
+
+        c = Client()
+        r = c.post("/baskets/%s/edit/" % (basket.id), {
+            "arena": self.arena.id,
+            "description": "new description",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        # Ensure that our original and renamed basket
+        # have the same IDs
+        renamed_basket = Basket.objects.get(
+            description="new description")
+
+        self.assertEqual(renamed_basket.id, basket.id)
