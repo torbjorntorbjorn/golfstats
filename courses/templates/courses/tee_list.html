@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+<h1>Tees</h1>
+
+<p>
+    <a href="{% url "golfstats-courses-tee-create" %}">
+        Create new tee
+    </a>
+</p>
+
+<ul>
+{% for tee in tees %}
+    <li>
+        <a href="{% url "golfstats-courses-tee-detail" tee.id %}">
+            {{ tee }}
+        </a>
+    </li>
+{% empty %}
+    <li>No tees available</li>
+{% endfor %}
+</ul>
+{% endblock %}
+

@@ -232,3 +232,86 @@ class ArenaFrontendTest(TestCase):
         # have the same IDs
         renamed_arena = Arena.objects.get(name="new name")
         self.assertEqual(renamed_arena.id, arena.id)
+
+class TeeFrontendTest(TestCase):
+    def setUp(self):
+        self.arena = make_arenas()[0]
+
+    def test_index(self):
+        tees = make_tees(self.arena, 5)
+
+        c = Client()
+        r = c.get("/tees/")
+
+        self.assertEqual(r.status_code, 200)
+
+        context_tees = r.context_data["tees"]
+        for tee in context_tees:
+            self.assertIn(tee, tees)
+
+    def test_create(self):
+        c = Client()
+        r = c.get("/tees/create/")
+
+        self.assertContains(r, 'Create or update tee', count=1)
+
+        c = Client()
+        r = c.post('/tees/create/', {
+            "arena": self.arena.id,
+            "description": "Some kind of tee",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        self.assertEqual(
+            Tee.objects.filter(description="Some kind of tee").count(), 1)
+
+    def test_detail(self):
+        tee = make_tees(self.arena)[0]
+
+        c = Client()
+        r = c.get("/tees/%s/" % (tee.id))
+
+        self.assertContains(r, tee.description, count=1)
+
+    def test_update(self):
+        # Pull up a test arena
+        tee = make_tees(self.arena)[0]
+
+        c = Client()
+        r = c.get("/tees/%s/edit/" % (tee.id))
+
+        self.assertContains(r, tee.description, count=1)
+
+        c = Client()
+        r = c.post("/tees/%s/edit/" % (tee.id), {
+            "arena": self.arena.id,
+            "description": "new description",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        # Ensure that our original and renamed arena
+        # have the same IDs
+        renamed_tee = Tee.objects.get(description="new description")
+        self.assertEqual(renamed_tee.id, tee.id)
+
+
+    def test_delete(self):
+        # Pull up a test arena
+        tee = make_tees(self.arena)[0]
+
+        c = Client()
+        r = c.get("/tees/%s/delete/" % (tee.id))
+
+        self.assertContains(r, tee.description, count=1)
+
+        # Simply posting there should delete the instance
+        c = Client()
+        r = c.post("/tees/%s/delete/" % (tee.id))
+
+        self.assertEqual(r.status_code, 302)
+
+        # Check that we can't actually load the deleted instance
+        self.assertRaises(Tee.DoesNotExist,
+            Tee.objects.get, id=tee.id)

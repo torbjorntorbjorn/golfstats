@@ -6,7 +6,7 @@ from django.views.generic import (ListView,
                                   DeleteView,
                                   UpdateView,)
 
-from courses.models import Arena
+from courses.models import Arena, Tee
 
 urlpatterns = patterns('',
     url(r'^arenas/$', ListView.as_view(
@@ -19,7 +19,7 @@ urlpatterns = patterns('',
         success_url=reverse_lazy('golfstats-courses-arenas'),
     ), name="golfstats-courses-arenas-create"),
 
-    url('^arenas/(?P<pk>\d+)/$', DetailView.as_view(
+    url(r'^arenas/(?P<pk>\d+)/$', DetailView.as_view(
         model=Arena,
         context_object_name="arena",
     ), name="golfstats-courses-arenas-detail"),
@@ -30,9 +30,36 @@ urlpatterns = patterns('',
         success_url=reverse_lazy('golfstats-courses-arenas'),
     ), name="golfstats-courses-arenas-detail"),
 
-    url('^arenas/(?P<pk>\d+)/delete/$', DeleteView.as_view(
+    url(r'^arenas/(?P<pk>\d+)/delete/$', DeleteView.as_view(
         model=Arena,
         context_object_name="arena",
         success_url=reverse_lazy('golfstats-courses-arenas'),
-    ), name="golfstats-courses-arenas-detail"),
+    ), name="golfstats-courses-arenas-delete"),
+
+    url(r'^tees/$', ListView.as_view(
+        model=Tee,
+        context_object_name="tees",
+    ), name="golfstats-courses-tees"),
+
+    url(r'^tees/create/$', CreateView.as_view(
+        model=Tee,
+        success_url=reverse_lazy('golfstats-courses-tees'),
+    ), name="golfstats-courses-tee-create"),
+
+    url(r'^tees/(?P<pk>\d+)/$', DetailView.as_view(
+        model=Tee,
+        context_object_name="tee",
+    ), name="golfstats-courses-tee-detail"),
+
+    url(r'^tees/(?P<pk>\d+)/edit/', UpdateView.as_view(
+        model=Tee,
+        context_object_name="tee",
+        success_url=reverse_lazy('golfstats-courses-tees'),
+    ), name="golfstats-courses-tee-detail"),
+
+    url(r'^tees/(?P<pk>\d+)/delete/$', DeleteView.as_view(
+        model=Tee,
+        context_object_name="tee",
+        success_url=reverse_lazy('golfstats-courses-tees'),
+    ), name="golfstats-courses-tee-delete"),
 )
