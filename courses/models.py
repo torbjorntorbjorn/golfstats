@@ -5,15 +5,24 @@ from django.core.exceptions import ValidationError
 class Arena(models.Model):
     name = models.CharField(max_length=255)
 
+    def  __unicode__(self):
+        return self.name
+
 
 class Tee(models.Model):
     arena = models.ForeignKey(Arena)
     description = models.CharField(max_length=255)
 
+    def __unicode__(self):
+        return self.description
+
 
 class Basket(models.Model):
     arena = models.ForeignKey(Arena)
     description = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.description
 
 
 class Hole(models.Model):
@@ -32,10 +41,16 @@ class Hole(models.Model):
 
         super(Hole, self).save(*kargs, **kwargs)
 
+    def __unicode__(self):
+        return "%s -> %s, par %s" % (self.tee, self.basket, self.par)
+
 
 class Course(models.Model):
     arena = models.ForeignKey(Arena)
     name = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.name
 
 
 class CourseHole(models.Model):
@@ -54,3 +69,6 @@ class CourseHole(models.Model):
         self.clean()
 
         super(CourseHole, self).save(*kargs, **kwargs)
+
+    def __unicode__(self):
+        return self.name
