@@ -487,3 +487,86 @@ class BasketFrontendTest(TestCase):
             description="new description")
 
         self.assertEqual(renamed_basket.id, basket.id)
+
+
+class CourseFrontendTest(TestCase):
+    def setUp(self):
+        self.arena = make_arenas()[0]
+
+    def test_index(self):
+        courses = make_course(self.arena, 5)
+
+        c = Client()
+        r = c.get("/courses/")
+
+        self.assertEqual(r.status_code, 200)
+
+        context_courses = r.context_data["courses"]
+        for course in context_courses:
+            self.assertIn(course, courses)
+
+    def test_create(self):
+        c = Client()
+        r = c.get("/courses/create/")
+
+        self.assertContains(r, 'Create or update course', count=1)
+
+        c = Client()
+        r = c.post('/courses/create/', {
+            "arena": self.arena.id,
+            "name": "Some kind of course",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        self.assertEqual(
+            Course.objects.filter(name="Some kind of course").count(), 1)
+
+    def test_detail(self):
+        course = make_course(self.arena)[0]
+
+        c = Client()
+        r = c.get("/courses/%s/" % (course.id))
+
+        self.assertContains(r, course.name, count=1)
+
+    def test_update(self):
+        # Pull up a test arena
+        course = make_course(self.arena)[0]
+
+        c = Client()
+        r = c.get("/courses/%s/edit/" % (course.id))
+
+        self.assertContains(r, course.name, count=1)
+
+        c = Client()
+        r = c.post("/courses/%s/edit/" % (course.id), {
+            "arena": self.arena.id,
+            "name": "new name",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        # Ensure that our original and renamed arena
+        # have the same IDs
+        renamed_course = Course.objects.get(name="new name")
+        self.assertEqual(renamed_course.id, course.id)
+
+    def test_delete(self):
+        # Make a test course
+        course = make_course(self.arena)[0]
+
+        c = Client()
+        r = c.get("/courses/%s/delete/" % (course.id))
+
+        self.assertContains(r, course.name, count=1)
+
+        # Simply posting there should delete the instance
+        c = Client()
+        r = c.post("/courses/%s/delete/" % (course.id))
+
+        self.assertEqual(r.status_code, 302)
+
+        # Check that we can't actually load the deleted instance
+        self.assertRaises(Course.DoesNotExist,
+            Course.objects.get, id=course.id)
