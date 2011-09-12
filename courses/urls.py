@@ -9,12 +9,12 @@ from django.views.generic import (ListView,
 from courses.models import Arena
 
 urlpatterns = patterns('',
-    url(r'^courses/$', ListView.as_view(
+    url(r'^arenas/$', ListView.as_view(
         model=Arena,
         context_object_name="arenas",
     ), name="golfstats-courses-arenas"),
 
-    url(r'^courses/create/$', CreateView.as_view(
+    url(r'^arenas/create/$', CreateView.as_view(
         model=Arena,
         success_url=reverse_lazy('golfstats-courses-arenas'),
     ), name="golfstats-courses-arenas-create"),

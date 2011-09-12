@@ -158,12 +158,12 @@ class ArenaTest(TestCase):
 class ArenaFrontendTest(TestCase):
     def test_create(self):
         c = Client()
-        r = c.get("/courses/create/")
+        r = c.get("/arenas/create/")
 
         self.assertContains(r, 'Create or update arena', count=1)
 
         c = Client()
-        r = c.post('/courses/create/', {
+        r = c.post('/arenas/create/', {
             "name": "Some arena name",
         })
 
@@ -176,7 +176,7 @@ class ArenaFrontendTest(TestCase):
         arenas = make_arenas(5)
 
         c = Client()
-        r = c.get('/courses/')
+        r = c.get('/arenas/')
 
         self.assertEquals(r.status_code, 200)
 
