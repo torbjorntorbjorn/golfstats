@@ -46,7 +46,7 @@ class CourseHole(models.Model):
 
     # Custom validation
     def clean(self):
-        if self.course.arena is not self.hole.tee.arena:
+        if self.course.arena.id != self.hole.tee.arena.id:
             raise ValidationError("Course and hole is not in the same arena")
 
     def save(self, *kargs, **kwargs):
