@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.core.exceptions import ValidationError
 
 from courses.models import Arena, Tee, Basket, Hole, Course, CourseHole
@@ -153,3 +153,33 @@ class ArenaTest(TestCase):
 
         self.assertRaises(ValidationError,
             coursehole.save)
+
+
+class ArenaFrontendTest(TestCase):
+    def test_create(self):
+        c = Client()
+        r = c.get("/courses/create/")
+
+        self.assertContains(r, 'Create or update arena', count=1)
+
+        c = Client()
+        r = c.post('/courses/create/', {
+            "name": "Some arena name",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        self.assertEqual(
+            Arena.objects.filter(name="Some arena name").count(), 1)
+
+    def test_index(self):
+        arenas = make_arenas(5)
+
+        c = Client()
+        r = c.get('/courses/')
+
+        self.assertEquals(r.status_code, 200)
+
+        context_arenas = r.context_data['arenas']
+        for arena in context_arenas:
+            self.assertIn(arena, arenas)

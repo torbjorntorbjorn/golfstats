@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+<h1>Arenas</h1>
+
+<p>
+    <a href="{% url "golfstats-courses-arenas-create" %}">
+        Create new arena
+    </a>
+</p>
+
+<ul>
+{% for vhost in vhosts %}
+    <li>
+        {{ vhost }}
+    </li>
+{% empty %}
+    <li>No arenas available</li>
+{% endfor %}
+</ul>
+{% endblock %}
+
