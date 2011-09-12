@@ -11,13 +11,14 @@
 </p>
 
 <ul>
-{% for vhost in vhosts %}
+{% for arena in arenas %}
     <li>
-        {{ vhost }}
+        <a href="{% url "golfstats-courses-arenas-detail" arena.id %}">
+            {{ arena }}
+        </a>
     </li>
 {% empty %}
     <li>No arenas available</li>
 {% endfor %}
 </ul>
 {% endblock %}
-

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+<h1>Arena {{ arena.name }}</h1>
+
+<ul>
+{% for course in arena.course_set.all %}
+    <li>{{ course }}</li>
+{% empty %}
+    <li>No courses on this arena</li>
+{% endfor %}
+</ul>
+
+{% endblock %}

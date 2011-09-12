@@ -18,4 +18,9 @@ urlpatterns = patterns('',
         model=Arena,
         success_url=reverse_lazy('golfstats-courses-arenas'),
     ), name="golfstats-courses-arenas-create"),
+
+    url('^arenas/(?P<pk>\d+)/$', DetailView.as_view(
+        model=Arena,
+        context_object_name="arena",
+    ), name="golfstats-courses-arenas-detail"),
 )

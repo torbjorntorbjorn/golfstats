@@ -183,3 +183,12 @@ class ArenaFrontendTest(TestCase):
         context_arenas = r.context_data['arenas']
         for arena in context_arenas:
             self.assertIn(arena, arenas)
+
+    def test_detail(self):
+        # Pull up a test arena
+        arena = make_arenas()[0]
+
+        c = Client()
+        r = c.get("/arenas/%s/" % (arena.id))
+
+        self.assertContains(r, arena.name, count=1)
