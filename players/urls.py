@@ -28,7 +28,7 @@ urlpatterns = patterns('',
         model=Player,
         context_object_name="player",
         success_url=reverse_lazy('golfstats-players-players'),
-    ), name="golfstats-players-players-detail"),
+    ), name="golfstats-players-players-edit"),
 
     url(r'^players/(?P<pk>\d+)/delete/$', DeleteView.as_view(
         model=Player,

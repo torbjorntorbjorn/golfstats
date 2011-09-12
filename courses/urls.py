@@ -28,7 +28,7 @@ urlpatterns = patterns('',
         model=Arena,
         context_object_name="arena",
         success_url=reverse_lazy('golfstats-courses-arenas'),
-    ), name="golfstats-courses-arenas-detail"),
+    ), name="golfstats-courses-arenas-edit"),
 
     url(r'^arenas/(?P<pk>\d+)/delete/$', DeleteView.as_view(
         model=Arena,
@@ -55,7 +55,7 @@ urlpatterns = patterns('',
         model=Tee,
         context_object_name="tee",
         success_url=reverse_lazy('golfstats-courses-tees'),
-    ), name="golfstats-courses-tee-detail"),
+    ), name="golfstats-courses-tee-edit"),
 
     url(r'^tees/(?P<pk>\d+)/delete/$', DeleteView.as_view(
         model=Tee,
@@ -82,7 +82,7 @@ urlpatterns = patterns('',
         model=Hole,
         context_object_name="hole",
         success_url=reverse_lazy('golfstats-courses-holes'),
-    ), name="golfstats-courses-hole-detail"),
+    ), name="golfstats-courses-hole-edit"),
 
     url(r'^holes/(?P<pk>\d+)/delete/$', DeleteView.as_view(
         model=Hole,
@@ -137,7 +137,7 @@ urlpatterns = patterns('',
         model=Course,
         context_object_name="course",
         success_url=reverse_lazy('golfstats-courses-courses'),
-    ), name="golfstats-courses-course-detail"),
+    ), name="golfstats-courses-course-edit"),
 
     url(r'^courses/(?P<pk>\d+)/delete/$', DeleteView.as_view(
         model=Course,
@@ -164,7 +164,7 @@ urlpatterns = patterns('',
         model=CourseHole,
         context_object_name="coursehole",
         success_url=reverse_lazy('golfstats-courses-courseholes'),
-    ), name="golfstats-courses-coursehole-detail"),
+    ), name="golfstats-courses-coursehole-edit"),
 
     url(r'^courseholes/(?P<pk>\d+)/delete/$', DeleteView.as_view(
         model=CourseHole,
