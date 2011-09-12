@@ -192,3 +192,22 @@ class ArenaFrontendTest(TestCase):
         r = c.get("/arenas/%s/" % (arena.id))
 
         self.assertContains(r, arena.name, count=1)
+
+    def test_delete(self):
+        # Pull up a test arena
+        arena = make_arenas()[0]
+
+        c = Client()
+        r = c.get("/arenas/%s/delete/" % (arena.id))
+
+        self.assertContains(r, arena.name, count=1)
+
+        # Simply posting there should delete the instance
+        c = Client()
+        r = c.post("/arenas/%s/delete/" % (arena.id))
+
+        self.assertEqual(r.status_code, 302)
+
+        # Check that we can't actually load the deleted instance
+        self.assertRaises(Arena.DoesNotExist,
+            Arena.objects.get, id=arena.id)
