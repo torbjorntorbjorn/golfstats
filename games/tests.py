@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 
 from django.core.exceptions import ValidationError
 
@@ -160,3 +160,77 @@ class GamesTest(TestCase):
 
         # Check that game can not be started again
         self.assertRaises(ValidationError, game.start)
+
+
+class GamesFrontendTest(TestCase):
+    def test_index(self):
+        game = make_game()
+        games = [game]
+
+        # Create some more test games
+        for i in range(4):
+            g = Game.objects.create(
+                course=game.course,
+            )
+            g.player = game.players
+            games.append(g)
+
+        c = Client()
+        r = c.get("/games/")
+
+        self.assertEqual(r.status_code, 200)
+
+        context_games = r.context_data["games"]
+        for game in context_games:
+            self.assertIn(game, games)
+
+    def test_create(self):
+        # Ensure we have no game
+        self.assertEqual(Game.objects.all().count(), 0)
+
+        arena = make_a_whole_arena()
+        players = make_players(5)
+        course = arena.course_set.all()[0]
+
+        c = Client()
+        r = c.get("/games/create/")
+
+        self.assertContains(r, 'Create or update a game', count=1)
+
+        c = Client()
+        r = c.post('/games/create/', {
+            "course": course.id,
+            "players": [p.id for p in players],
+            "state": Game.STATE_CREATED,
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        # Ensure we have created a new game
+        self.assertEqual(Game.objects.all().count(), 1)
+
+    def test_detail(self):
+        game = make_game()
+
+        c = Client()
+        r = c.get("/games/%s/" % (game.id))
+
+        self.assertContains(r, "Game %s" % (game.id), count=1)
+
+    def test_delete(self):
+        game = make_game()
+
+        c = Client()
+        r = c.get("/games/%s/delete/" % (game.id))
+
+        self.assertContains(r, "game %s" % (game.id), count=1)
+
+        # Simply posting there should delete the instance
+        c = Client()
+        r = c.post("/games/%s/delete/" % (game.id))
+
+        self.assertEqual(r.status_code, 302)
+
+        # Check that we can't actually load the deleted instance
+        self.assertRaises(Game.DoesNotExist,
+            Game.objects.get, id=game.id)

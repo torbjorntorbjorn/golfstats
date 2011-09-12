@@ -10,4 +10,5 @@ urlpatterns = patterns('',
 urlpatterns += patterns('',
     url(r'', include('courses.urls')),
     url(r'', include('players.urls')),
+    url(r'', include('games.urls')),
 )
