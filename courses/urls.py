@@ -24,6 +24,12 @@ urlpatterns = patterns('',
         context_object_name="arena",
     ), name="golfstats-courses-arenas-detail"),
 
+    url(r'^arenas/(?P<pk>\d+)/edit/', UpdateView.as_view(
+        model=Arena,
+        context_object_name="arena",
+        success_url=reverse_lazy('golfstats-courses-arenas'),
+    ), name="golfstats-courses-arenas-detail"),
+
     url('^arenas/(?P<pk>\d+)/delete/$', DeleteView.as_view(
         model=Arena,
         context_object_name="arena",

@@ -211,3 +211,24 @@ class ArenaFrontendTest(TestCase):
         # Check that we can't actually load the deleted instance
         self.assertRaises(Arena.DoesNotExist,
             Arena.objects.get, id=arena.id)
+
+    def test_update(self):
+        # Pull up a test arena
+        arena = make_arenas()[0]
+
+        c = Client()
+        r = c.get("/arenas/%s/edit/" % (arena.id))
+
+        self.assertContains(r, arena.name, count=1)
+
+        c = Client()
+        r = c.post("/arenas/%s/edit/" % (arena.id), {
+            "name": "new name",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        # Ensure that our original and renamed arena
+        # have the same IDs
+        renamed_arena = Arena.objects.get(name="new name")
+        self.assertEqual(renamed_arena.id, arena.id)
