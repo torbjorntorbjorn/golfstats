@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Create or update a player</h1>
+
+<form method="post" action=".">{% csrf_token %}
+    <table>
+        <tbody>
+            {{ form }}
+        </tbody>
+    </table>
+
+    <button type="submit">Save</button>
+</form>
+{% endblock %}
