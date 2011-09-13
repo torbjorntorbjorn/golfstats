@@ -33,12 +33,15 @@
 <h2>Standings</h2>
 
 <table>
-    <tr>
-        <th>Player</th>
-        {% for hole in game.course.coursehole_set.all %}
-        <th>{{ hole.order }}</th>
-        {% endfor %}
-    </tr>
+    <thead>
+        <tr>
+            <th>Player</th>
+            {% for hole in game.course.coursehole_set.all %}
+            <th>{{ hole.order }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
     {% for player in game.players.all %}
     <tr>
         <td>{{ player.name }}</td>
@@ -47,6 +50,6 @@
         {% endfor %}
     </tr>
     {% endfor %}
+    </tbody>
 </table>
-
 {% endblock %}
