@@ -6,6 +6,7 @@ from django.views.generic import (ListView,
                                   DeleteView,)
 
 from games.models import Game
+from games.views import play
 
 urlpatterns = patterns('',
     url(r'^games/$', ListView.as_view(
@@ -28,4 +29,7 @@ urlpatterns = patterns('',
         context_object_name="game",
         success_url=reverse_lazy('golfstats-games-games'),
     ), name="golfstats-games-games-delete"),
+
+    url(r'^games/(?P<pk>\d+)/play/$', play,
+        name="golfstats-games-games-play"),
 )

@@ -234,3 +234,63 @@ class GamesFrontendTest(TestCase):
         # Check that we can't actually load the deleted instance
         self.assertRaises(Game.DoesNotExist,
             Game.objects.get, id=game.id)
+
+    def test_play(self):
+        game = make_game()
+
+        c = Client()
+        r = c.get("/games/%s/play/" % (game.id))
+
+        self.assertContains(r, "Playing game %s" % (game.id), count=1)
+
+        self.assertEqual(game.state, game.STATE_CREATED)
+
+        c = Client()
+        r = c.post("/games/%s/play/" % (game.id), {
+            "game-state-change": "button value",
+            "wanted-state": "start",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        # Refresh game
+        game = Game.objects.get(id=game.id)
+
+        # Check that game has started
+        self.assertEqual(game.state, game.STATE_STARTED)
+
+        # Generate a whole bunch of throws
+        throws = {}
+        for player in game.players.all():
+            for coursehole in game.course.coursehole_set.all():
+                score_key = "throws-player:%s-game:%s-coursehole:%s" % (
+                    player.id, game.id, coursehole.id)
+
+                ob_score_key = "ob_throws-player:%s-game:%s-coursehole:%s" % (
+                    player.id, game.id, coursehole.id)
+
+                throws[score_key] = coursehole.hole.par
+                throws[ob_score_key] = 0
+
+        # Submit button key and value
+        throws["score"] = "button value"
+
+        c = Client()
+        r = c.post("/games/%s/play/" % (game.id), throws)
+
+        # We managed to save scores ?
+        self.assertEqual(r.status_code, 302)
+
+        c = Client()
+        r = c.post("/games/%s/play/" % (game.id), {
+            "game-state-change": "button value",
+            "wanted-state": "finish",
+        })
+
+        self.assertEqual(r.status_code, 302)
+
+        # Refresh game
+        game = Game.objects.get(id=game.id)
+
+        # Check that game has finished
+        self.assertEqual(game.state, game.STATE_FINISHED)

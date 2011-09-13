@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+<h1>Playing game {{ game.id }}</h1>
+
+<section>
+    <h2>Game state</h2>
+
+    {% ifequal game.state game.STATE_CREATED %}
+        <form method="post" action=".">{% csrf_token %}
+            <input type="hidden" name="wanted-state" value="start">
+            <button type="submit" name="game-state-change">Start game</button>
+        </form>
+    {% endifequal %}
+
+    {% ifequal game.state game.STATE_STARTED %}
+        <form method="post" action=".">{% csrf_token %}
+            <input type="hidden" name="wanted-state" value="finish">
+            <button type="submit" name="game-state-change">Finish game</button>
+        </form>
+
+        <form method="post" action=".">{% csrf_token %}
+            <input type="hidden" name="wanted-state" value="abort">
+            <button type="submit" name="game-state-change">Abort game</button>
+        </form>
+    {% endifequal %}
+
+    {% ifequal game.state game.STATE_FINISHED %}
+        <p>Game is finished</p>
+    {% endifequal %}
+
+    {% ifequal game.state game.STATE_ABORTED %}
+        <p>Game is aborted</p>
+    {% endifequal %}
+</section>
+
+<section>
+<h2>Scorecard</h2>
+
+<form method="post" action=".">{% csrf_token %}
+    <table id="scorecard">
+        <thead>
+            <tr>
+                <td>Holes / Players</td>
+
+                {% for player in game.players.all %}
+                    <th>{{ player }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for coursehole in game.course.coursehole_set.all %}
+                <tr>
+                    <th>{{ coursehole.name }}</th>
+
+                    {% for player in game.players.all %}
+                        <td>
+                            <ul>
+                                <li>
+                                    Throws: <input
+                                        type="number" maxwidth="2" size="2"
+                                        name="throws-player:{{ player.id }}-game:{{ game.id }}-coursehole:{{ coursehole.id }}">
+
+                                </li>
+                                <li>
+                                    OB throws: <input type="number" maxwidth="2" size="2"
+                                        name="ob_throws-player:{{ player.id }}-game:{{ game.id }}-coursehole:{{ coursehole.id }}">
+                                </li>
+                            <ul>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+<button type="submit" name="score">Save</button>
+</form>
+</section>
+{% endblock %}
+
+{% block end_of_body %}
+<script>
+
+window.addEventListener("load", function() {
+    var button = document.createElement("button");
+    button.innerHTML = "fill scorecard with values";
+
+    button.addEventListener("click", function() {
+        var inputs = document.getElementsByTagName("input");
+
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i];
+
+            if (input.name.search("throws") === 0) {
+                input.value = "3";
+            }
+
+            if (input.name.search("ob_throws") === 0) {
+                input.value = "0";
+            }
+        }
+    }, false);
+
+    s = document.getElementsByTagName("section")[0];
+    s.appendChild(button);
+
+}, false);
+
+</script>
+{% endblock %}
