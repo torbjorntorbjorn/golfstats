@@ -6,7 +6,9 @@
 
 <ul>
 {% for course in arena.course_set.all %}
-    <li>{{ course }}</li>
+    <li><a href="{% url "golfstats-courses-course-detail" course.id %}">
+        {{ course }}
+    </a></li>
 {% empty %}
     <li>No courses on this arena</li>
 {% endfor %}
