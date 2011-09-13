@@ -4,4 +4,32 @@
 {% block content %}
 <h1>Course {{ course.name }}</h1>
 
+<h2>Holes</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Par</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for coursehole in course.coursehole_set.all %}
+            <tr>
+                <td><a
+                    href="{% url "golfstats-courses-coursehole-detail" coursehole.id %}">
+                    {{ coursehole.name }}
+                    </a>
+                </td>
+                <td>{{ coursehole.hole.par }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2">There aren't any holes on this course</td>
+            </tr>
+        {% endfor %}
+    </tbody
+</table>
+
 {% endblock %}
