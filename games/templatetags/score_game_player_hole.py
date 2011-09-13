@@ -4,6 +4,7 @@ from games.models import GameHole
 
 register = template.base.Library()
 
+
 @register.tag
 def get_player_score(parser, token):
 
@@ -28,10 +29,10 @@ class PlayerScoreNode(template.Node):
         super(PlayerScoreNode, self).render(context)
         try:
             gamehole = GameHole.objects.get(
-                game__id = self.game_id.resolve(context),
-                coursehole__id = self.coursehole_id.resolve(
+                game__id=self.game_id.resolve(context),
+                coursehole__id=self.coursehole_id.resolve(
                     context),
-                player__id = self.player_id.resolve(context),
+                player__id=self.player_id.resolve(context),
             )
         except GameHole.DoesNotExist:
             return 0
