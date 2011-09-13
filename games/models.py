@@ -25,6 +25,9 @@ class Game(models.Model):
         choices=STATE_CHOICES, default=STATE_CREATED,
     )
 
+    def __unicode__(self):
+        return "Game %s" % (self.id)
+
     def start(self):
         if self.state is not self.STATE_CREATED:
             # TODO: This is bad, we should at least get the state
