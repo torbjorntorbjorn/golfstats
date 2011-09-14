@@ -1,7 +1,37 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load golfstats_games %}
 
 {% block content %}
 <h1>Player {{ player.name }}</h1>
+<p><a href="{% url "golfstats-players-players-edit" player.id %}">Edit {{ player.name }}</a></p>
+
+<h2>Finished games</h2>
+<table class="finished-games">
+    <thead>
+        <tr>
+            <th>Date played</th>
+            <th>Course</th>
+            <th>Throws</th>
+            <th>Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for game in player.finishedgame_set.all %}
+        <tr>
+            <td>N/A</td>
+            <td>{{ game.game.course }}</td>
+            <td>{{ game.throws }}</td>
+            <td>{{ game.score }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if player.last_game %}
+    <h2>Last game</h2>
+    <p>On {{ player.last_game.course }}</p>
+    {% game_standings_table player.last_game %}
+{% endif %}
 
 {% endblock %}
