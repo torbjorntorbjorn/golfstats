@@ -33,29 +33,6 @@
 
 <h2>Standings</h2>
 
-<table class="standings">
-    <thead>
-        <tr>
-            <th class="player">Player</th>
-            {% for hole in game.course.coursehole_set.all %}
-            <th class="hole">{{ hole.order }}</th>
-            {% endfor %}
-        </tr>
-    </thead>
-    <tbody>
-    {% for player in game.players.all %}
-    <tr>
-        <td>{{ player.name }}</td>
-        {% for hole in game.course.coursehole_set.all %}
-        {% get_player_score player.id hole.id game.id gamehole %}
-        <td class="hole {% if gamehole %}{% get_hole_score_css_class gamehole %}{% endif %}">
-            {% if gamehole %}
-                {{ gamehole.throws }}
-            {% endif %}
-        </td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+{% game_standings_table game %}
+
 {% endblock %}
