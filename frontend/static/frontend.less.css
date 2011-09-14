@@ -19,3 +19,22 @@ table, td, th {
   border-collapse: collapse;
   padding: 0.25em;
 }
+table.standings td.hole {
+  text-align: center;
+}
+table.standings th.hole {
+  width: 1.5em;
+}
+table.standings th.player {
+  width: 10em;
+  text-align: left;
+}
+table.standings td.par {
+  background-color: white;
+}
+table.standings td.overpar {
+  background-color: red;
+}
+table.standings td.belowpar {
+  background-color: green;
+}

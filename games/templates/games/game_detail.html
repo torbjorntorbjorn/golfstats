@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load score_game_player_hole %}
+{% load golfstats_games %}
 
 {% block content %}
 <h1>Game {{ game.id }}</h1>
@@ -32,12 +33,12 @@
 
 <h2>Standings</h2>
 
-<table>
+<table class="standings">
     <thead>
         <tr>
-            <th>Player</th>
+            <th class="player">Player</th>
             {% for hole in game.course.coursehole_set.all %}
-            <th>{{ hole.order }}</th>
+            <th class="hole">{{ hole.order }}</th>
             {% endfor %}
         </tr>
     </thead>
@@ -46,7 +47,12 @@
     <tr>
         <td>{{ player.name }}</td>
         {% for hole in game.course.coursehole_set.all %}
-        <td>{% get_player_score player.id hole.id game.id %}</td>
+        {% get_player_score player.id hole.id game.id gamehole %}
+        <td class="hole {% if gamehole %}{% get_hole_score_css_class gamehole %}{% endif %}">
+            {% if gamehole %}
+                {{ gamehole.throws }}
+            {% endif %}
+        </td>
         {% endfor %}
     </tr>
     {% endfor %}
