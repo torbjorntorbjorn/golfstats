@@ -91,18 +91,28 @@ def play(req, pk):
                 player, game, coursehole = _get_pgh(pgh[0], pgh[1], pgh[2])
 
                 # Create gamehole object
-                gh = GameHole(
-                    player=player,
-                    game=game,
-                    coursehole=coursehole)
+                try:
+                    gh = GameHole.objects.get(
+                        player=player,
+                        game=game,
+                        coursehole=coursehole)
+                except GameHole.DoesNotExist:
+                    gh = GameHole(
+                        player=player,
+                        game=game,
+                        coursehole=coursehole)
 
                 # Set throws if present
                 if "throws" in throws:
                     gh.throws = throws["throws"]
+                else:
+                    gh.throws = 0
 
                 # Set ob throws in present
                 if "ob_throws" in throws:
                     gh.ob_throws = throws["ob_throws"]
+                else:
+                    gh.ob_throws = 0
 
                 gh.save()
 
