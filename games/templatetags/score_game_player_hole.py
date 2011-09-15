@@ -14,7 +14,7 @@ def get_player_score(parser, token):
             return_var = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError(
-            "%r tag requires three arguments" %
+            "%r tag requires four arguments" %
             token.contents.split()[0])
 
     return PlayerScoreNode(player_id, coursehole_id,
