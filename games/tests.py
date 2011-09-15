@@ -306,6 +306,31 @@ class GamesFrontendTest(TestCase):
         # We managed to save scores ?
         self.assertEqual(r.status_code, 302)
 
+        # Remove the button value from generated scores
+        del throws["score"]
+
+        # Iterate over our genetared scores
+        # and find them using the ORM
+        for key, val in throws.items():
+            player_id, game_id, coursehole_id = \
+                [k.split(":")[1] for k in key.split("-")[1:]]
+
+            gh = GameHole.objects.get(
+                player__id=player_id,
+                game__id=game_id,
+                coursehole__id=coursehole_id)
+
+            attr = key.split("-")[0]
+
+            if attr == "throws":
+                self.assertEqual(gh.throws, val)
+
+            if attr == "ob_throws":
+                self.assertEqual(gh.ob_throws, val)
+
+        # Assert we have correct number of GameHoles
+        self.assertEqual(len(throws) / 2, GameHole.objects.all().count())
+
         c = Client()
         r = c.post("/games/%s/play/" % (game.id), {
             "game-state-change": "button value",
