@@ -6,30 +6,31 @@ register = template.base.Library()
 
 
 @register.tag
-def get_player_score(parser, token):
+def get_gamehole(parser, token):
 
     try:
         tag_name, player_id, \
-            coursehole_id, game_id, \
-            return_var = token.split_contents()
+            game_id, coursehole_id, \
+            context_name = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError(
             "%r tag requires four arguments" %
             token.contents.split()[0])
 
-    return PlayerScoreNode(player_id, coursehole_id,
-        game_id, return_var)
+    return PlayerScoreNode(player_id, game_id,
+        coursehole_id, context_name)
 
 
 class PlayerScoreNode(template.Node):
-    def __init__(self, player_id, coursehole_id, game_id, return_var):
+    def __init__(self, player_id, game_id, coursehole_id, context_name):
         self.player_id = Variable(player_id)
-        self.coursehole_id = Variable(coursehole_id)
         self.game_id = Variable(game_id)
-        self.return_var = return_var
+        self.coursehole_id = Variable(coursehole_id)
+        self.context_name = context_name
 
     def render(self, context):
         super(PlayerScoreNode, self).render(context)
+
         try:
             gamehole = GameHole.objects.get(
                 game__id=self.game_id.resolve(context),
@@ -37,9 +38,11 @@ class PlayerScoreNode(template.Node):
                     context),
                 player__id=self.player_id.resolve(context),
             )
+
+            context[self.context_name] = gamehole
+
         except GameHole.DoesNotExist:
-            context[self.return_var] = 0
-        else:
-            context[self.return_var] = gamehole
+            if self.context_name in context:
+                del context[self.context_name]
 
         return ''

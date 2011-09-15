@@ -15,7 +15,7 @@
 <tr>
     <td>{{ player.name }}</td>
     {% for hole in game.course.coursehole_set.all %}
-    {% get_player_score player.id hole.id game.id gamehole %}
+    {% get_gamehole player.id game.id hole.id gamehole %}
     <td class="hole {% if gamehole %}{% get_hole_score_css_class gamehole %}{% endif %}">
         {% if gamehole %}
             {{ gamehole.throws }}
