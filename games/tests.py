@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 
 from games.models import Game, GameHole
 
@@ -160,6 +161,30 @@ class GamesTest(TestCase):
 
         # Check that game can not be started again
         self.assertRaises(ValidationError, game.start)
+
+    def test_gamehole_unique_constraint(self):
+        game = make_game()
+        player = game.players.all()[0]
+        coursehole = game.course.coursehole_set.all()[0]
+
+        gh1 = GameHole(
+            player=player,
+            game=game,
+            coursehole=coursehole,
+            throws=3,
+            ob_throws=0,
+        )
+        gh1.save()
+
+        gh2 = GameHole(
+            player=player,
+            game=game,
+            coursehole=coursehole,
+            throws=3,
+            ob_throws=0,
+        )
+
+        self.assertRaises(IntegrityError, gh2.save)
 
 
 class GamesFrontendTest(TestCase):

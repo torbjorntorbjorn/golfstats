@@ -149,6 +149,9 @@ class GameHole(models.Model):
     throws = models.IntegerField()
     ob_throws = models.IntegerField()
 
+    class Meta:
+        unique_together = ("player", "game", "coursehole")
+
     @property
     def score(self):
         return self.coursehole.hole.par - self.throws
