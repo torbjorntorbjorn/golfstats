@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load score_game_player_hole %}
 
 {% block content %}
 <h1>Playing game {{ game.id }}</h1>
@@ -45,27 +46,30 @@
                 <td>Holes / Players</td>
 
                 {% for player in game.players.all %}
-                    <th>{{ player }}</th>
+                    <th data-player_id="{{ player.id }}">{{ player }}</th>
                 {% endfor %}
             </tr>
         </thead>
 
         <tbody>
             {% for coursehole in game.course.coursehole_set.all %}
-                <tr>
+                <tr data-coursehole_id="{{ coursehole.id }}"
+                    data-coursehole_par="{{ coursehole.hole.par }}">
                     <th>{{ coursehole.name }}</th>
 
                     {% for player in game.players.all %}
-                        <td>
+                    {% get_gamehole player.id game.id coursehole.id gamehole %}
+                        <td data-player_id="{{ player.id }}">
                             <ul>
                                 <li>
                                     Throws: <input
-                                        type="number" maxwidth="2" size="2"
+                                        type="number" maxwidth="2" size="2" value="{{ gamehole.throws }}" class="throws"
                                         name="throws-player:{{ player.id }}-game:{{ game.id }}-coursehole:{{ coursehole.id }}">
 
                                 </li>
                                 <li>
-                                    OB throws: <input type="number" maxwidth="2" size="2"
+                                    OB throws: <input
+                                        type="number" maxwidth="2" size="2" value="{{ gamehole.ob_throws }}" class="ob_throws"
                                         name="ob_throws-player:{{ player.id }}-game:{{ game.id }}-coursehole:{{ coursehole.id }}">
                                 </li>
                             <ul>
@@ -74,10 +78,31 @@
                 </tr>
             {% endfor %}
         </tbody>
+
+        <tfoot>
+            <tr>
+                <td>Holes / Players</td>
+
+                {% for player in game.players.all %}
+                    <th>{{ player }}</th>
+                {% endfor %}
+            </tr>
+        </tfoot>
     </table>
 
 <button type="submit" name="score">Save</button>
 </form>
+
+<div id="score-dialog" style="display: off">
+    <dl>
+        <dd>Throws</dd>
+        <dt><input type="number" id="dialog-throws"></dt>
+
+        <dd>OB throws</dd>
+        <dt><input type="number" id="dialog-ob_throws"></dt>
+    </dl>
+</div>
+
 </section>
 {% endblock %}
 
@@ -108,6 +133,133 @@ window.addEventListener("load", function() {
     s.appendChild(button);
 
 }, false);
+
+$(function() {
+    var scores = {};
+    var result_cells = {};
+    var scorecard = $("#scorecard");
+
+    // Find all players and make scores variable
+    var player_ids = [];
+    scorecard.find("thead th").each(function(i, el) {
+        player_ids.push($(el).data("player_id"));
+    });
+
+    // Find all holes and record ids
+    var courseholes_ids = [];
+    scorecard.find("tbody tr").each(function(i, el) {
+        courseholes_ids.push($(el).data("coursehole_id"));
+    });
+
+    // Initialize all scores to 0
+    $(player_ids).each(function(i, player_id) {
+        scores[player_id] = {};
+
+        $(courseholes_ids).each(function(j, ch_id) {
+            scores[player_id][ch_id] = 0;
+        });
+    });
+
+    // Create and insert result row
+    (function() {
+        var score_row = $("<tr></tr>");
+        score_row.append($("<td>Scores</td>"));
+
+        for (var player_id in scores) {
+            var result_cell = $("<td>0</td>");
+            result_cells[player_id] = result_cell.get(0);
+            score_row.append(result_cell);
+        }
+        scorecard.find("thead").append(score_row);
+    })();
+
+    // Sum player and update result cell
+    function sum_player(player_id) {
+        var score = 0;
+        var player_scores = scores[player_id];
+
+        for (var ch_id in player_scores) {
+            score += player_scores[ch_id];
+        }
+
+        result_cells[player_id].innerHTML = score;
+    }
+
+    // Maintain score object, and possibly sum affected player
+    function score_change(el, do_sum) {
+        var do_sum = do_sum || false;
+
+        var el = $(el);
+
+        if (!el.val().match(/^\d+$/)) {
+            // Element value not an integer
+            return;
+        }
+
+        // Hmf, 'throws' is a keyword
+        var _throws = parseInt(el.val(), 10);
+
+        var player_id = el.parents("td").data("player_id");
+        var ch_id = el.parents("tr").data("coursehole_id");
+        var par = el.parents("tr").data("coursehole_par");
+
+        // Set the score
+        scores[player_id][ch_id] = _throws - par;
+
+        // Update result cell
+        if (do_sum) {
+            sum_player(player_id);
+        }
+    }
+
+    // Init score object and capture change event
+    scorecard.find("tbody input.throws").each(function(i, el) {
+        // Connect event handlers
+        $(el).bind("change keyup click", function(e) {
+            score_change(e.currentTarget, true);
+        });
+
+        // Initial scores
+        score_change(el);
+    });
+
+    // Run sum_player for all players
+    $(player_ids).each(function(i, player_id) {
+        sum_player(player_id);
+    });
+
+    /*
+    // Set up dialog
+    var dialog = $("#score-dialog");
+
+    dialog.css("display", null);
+    dialog.dialog({
+        autoOpen: false,
+        height: "auto",
+        modal: true,
+        center: true,
+        width: 560
+    });
+
+    scorecard.find("tbody td").each(function(i, el) {
+        var el = el;
+
+        $(el).click(function(e) {
+            dialog.dialog("option", "buttons", {
+                "OK": function(e) {
+                    debugger;
+                },
+
+                "Cancel": function() {
+                    dialog.dialog("close");
+                }
+            });
+
+            dialog.dialog("open");
+        });
+    });
+    */
+});
 
 </script>
 {% endblock %}
