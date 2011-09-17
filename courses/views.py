@@ -1,6 +1,6 @@
 from django.views.generic import DetailView
 from courses.models import Arena, Course
-from games.models import Game, FinishedGame
+from games.models import Game
 
 
 class CourseDetailView(DetailView):
@@ -33,4 +33,3 @@ class ArenaDetailView(DetailView):
             get_last_game_by_arena(self.object)
 
         return context
-

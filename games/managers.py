@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class GameManager(models.Manager):
     def get_last_game_by_arena(self, arena):
         game = self.filter(
