@@ -21,6 +21,9 @@
     <dd>
         <ul class="horizontal">
         {% for player in game.players.all %}
+            {% comment %}
+            TODO: Replace comma with some CSS (content:after maybe?) to avoid having it below
+            {% endcomment %}
             <li><a href="{% url "golfstats-players-players-detail" player.id %}">{{ player }}</a>, </li>
         {% empty %}
             <li>There are no players in this game</li>
