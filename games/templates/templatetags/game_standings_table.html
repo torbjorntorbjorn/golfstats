@@ -1,5 +1,6 @@
 {% load score_game_player_hole %}
 {% load golfstats_games %}
+{% load url from future %}
 
 <table class="standings">
 <thead>
@@ -13,7 +14,9 @@
 <tbody>
 {% for player in game.players.all %}
 <tr>
-    <td>{{ player.name }}</td>
+    <td>
+        <a href="{% url "golfstats-players-players-detail" player.id %}">{{ player.name }}</a>
+    </td>
     {% for hole in game.course.coursehole_set.all %}
     {% get_gamehole player.id game.id hole.id gamehole %}
     <td class="hole {% if gamehole %}{% get_hole_score_css_class gamehole %}{% endif %}">
