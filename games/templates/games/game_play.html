@@ -140,12 +140,13 @@ window.addEventListener("load", function() {
 // Handles result row, scores and changes to
 // score elements
 $(function() {
+    var scorecard = $("#scorecard");
+
     // matrix with players, courseholes and scores
     var scores = {};
 
     // Holds DOM references to each players result cell
     var result_cells = {};
-    var scorecard = $("#scorecard");
 
     // Find all players and make scores variable
     var player_ids = [];
