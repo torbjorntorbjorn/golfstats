@@ -20,7 +20,7 @@
 </dl>
 
 {% if last_games %}
-    <h2>Last game</h2>
+    <h2>Last game (<a href="{% url "golfstats-games-games-detail" last_game.id %}">#{{ last_game.id }}</a>)</h2>
     {% game_standings_table last_game %}
 {% endif %}
 

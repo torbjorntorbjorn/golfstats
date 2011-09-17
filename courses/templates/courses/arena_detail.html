@@ -17,7 +17,8 @@
 </ul>
 
 {% if last_games %}
-    <h2>Last game</h2>
+    <h2>Last game (<a href="{% url "golfstats-games-games-detail" last_game.id %}">#{{ last_game.id }}</a>)</h2>
+    <p>Played on <a href="{% url "golfstats-courses-course-detail" last_game.course.id %}">{{ last_game.course }}</a></p>
     {% game_standings_table last_game %}
 {% endif %}
 

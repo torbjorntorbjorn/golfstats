@@ -54,22 +54,36 @@ table.standings {
 }
 
 dl.model-details {
-    width: 300px;
+    width: 400px;
     overflow: hidden;
     margin: 0;
     padding: 0;
+
+    dt {
+        margin: 0;
+        padding: 0;
+        float: left;
+        width: 30%;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    dd {
+        margin: 0;
+        padding: 0;
+        width: 70%;
+        float: left;
+        margin-bottom: 5px;
+    }
+
+    dd ul.horizontal {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            display: inline;
+        }
+    }
 }
 
-dl.model-details dt {
-    margin: 0;
-    padding: 0;
-    float: left;
-    width: 50%;
-}
-
-dl.model-details dd {
-    margin: 0;
-    padding: 0;
-    width: 50%;
-    float: left;
-}
