@@ -109,6 +109,7 @@
 {% block end_of_body %}
 <script>
 
+// Development helper
 window.addEventListener("load", function() {
     var button = document.createElement("button");
     button.innerHTML = "fill scorecard with values";
@@ -134,8 +135,13 @@ window.addEventListener("load", function() {
 
 }, false);
 
+// Handles result row, scores and changes to
+// score elements
 $(function() {
+    // matrix with players, courseholes and scores
     var scores = {};
+
+    // Holds DOM references to each players result cell
     var result_cells = {};
     var scorecard = $("#scorecard");
 
