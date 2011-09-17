@@ -5,6 +5,37 @@ register = template.base.Library()
 
 
 @register.tag
+def games_list_table(parser, token):
+
+    try:
+        tag_name, games = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires one argument" %
+            token.contents.split()[0])
+
+    return GamesListNode(games)
+
+
+class GamesListNode(template.Node):
+    def __init__(self, games):
+        self.games = Variable(games)
+
+    def render(self, context):
+        super(GamesListNode, self).render(context)
+        games = self.games.resolve(context)
+
+        t = template.loader.get_template(
+            'templatetags/games_list_table.html')
+
+        t_context = template.Context({
+            'games': games,
+        })
+
+        return t.render(t_context)
+
+
+@register.tag
 def game_standings_table(parser, token):
 
     try:

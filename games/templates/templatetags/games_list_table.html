@@ -1,0 +1,24 @@
+{% load url from future %}
+<table class="">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Date played</th>
+            <th>Players</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for game in games %}
+        <tr>
+            <td><a href="{% url "golfstats-games-games-detail" game.id %}">{{ game.id }}</a></td>
+            <td>N/A</td>
+            <td>
+                {% for player in game.players.all %}
+                    <a href="{% url "golfstats-players-players-detail" player.id %}">{{ player.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
