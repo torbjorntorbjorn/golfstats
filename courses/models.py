@@ -52,6 +52,13 @@ class Course(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_course_par(self):
+        throws = 0
+        for coursehole in self.coursehole_set.all():
+            throws += coursehole.hole.par
+
+        return throws
+
 
 class CourseHole(models.Model):
     course = models.ForeignKey(Course)

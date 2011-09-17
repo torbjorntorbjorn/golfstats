@@ -20,7 +20,7 @@
         {% for game in player.finishedgame_set.all %}
         <tr>
             <td>N/A</td>
-            <td>{{ game.game.course }}</td>
+            <td><a href="{% url "golfstats-courses-course-detail" game.game.course.id %}">{{ game.game.course }}</a></td>
             <td>{{ game.throws }}</td>
             <td>{{ game.score }}</td>
         </tr>
@@ -30,7 +30,7 @@
 
 {% if player.last_game %}
     <h2>Last game</h2>
-    <p>On {{ player.last_game.course }}</p>
+    <p>On <a href="{% url "golfstats-courses-course-detail" player.last_game.course.id %}">{{ player.last_game.course }}</a></p>
     {% game_standings_table player.last_game %}
 {% endif %}
 

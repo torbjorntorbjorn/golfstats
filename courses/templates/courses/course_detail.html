@@ -1,8 +1,34 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load golfstats_games %}
 
 {% block content %}
 <h1>Course {{ course.name }}</h1>
+
+<dl class="model-details">
+    <dt>Arena</dt>
+    <dd><a href="{% url "golfstats-courses-arenas-detail" course.arena.id %}">{{ course.arena }}</a></dd>
+
+    <dt>Games played</dt>
+    <dd>{{ course.game_set.count }}</dd>
+
+    <dt>Holes</dt>
+    <dd>{{ course.coursehole_set.count }}</dd>
+
+    <dt>Par</dt>
+    <dd>{{ course.get_course_par }}</dd>
+</dl>
+
+{% if last_games %}
+    <h2>Last game (<a href="{% url "golfstats-games-games-detail" last_game.id %}">#{{ last_game.id }}</a>)</h2>
+    {% game_standings_table last_game %}
+{% endif %}
+
+{% if last_games %}
+    <h2>Last games</h2>
+    {% games_list_table last_games %}
+{% endif %}
+
 
 <h2>Holes</h2>
 
