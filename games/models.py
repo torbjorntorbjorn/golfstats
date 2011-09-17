@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 
 from courses.models import Course, CourseHole
 from players.models import Player
+from games.managers import GameManager
 
 
 class Game(models.Model):
@@ -24,6 +25,8 @@ class Game(models.Model):
     state = models.PositiveSmallIntegerField(
         choices=STATE_CHOICES, default=STATE_CREATED,
     )
+
+    objects = GameManager()
 
     def __unicode__(self):
         return "Game %s" % (self.id)
