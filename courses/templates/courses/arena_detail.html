@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load golfstats_games %}
 
 {% block content %}
 <h1>Arena {{ arena.name }}</h1>
 
+<h2>Courses</h2>
 <ul>
 {% for course in arena.course_set.all %}
     <li><a href="{% url "golfstats-courses-course-detail" course.id %}">
@@ -13,5 +15,16 @@
     <li>No courses on this arena</li>
 {% endfor %}
 </ul>
+
+{% if last_games %}
+    <h2>Last game</h2>
+    {% game_standings_table last_game %}
+{% endif %}
+
+{% if last_games %}
+    <h2>Last games</h2>
+    {% games_list_table last_games %}
+{% endif %}
+
 
 {% endblock %}
