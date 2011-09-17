@@ -59,7 +59,9 @@
 
                     {% for player in game.players.all %}
                     {% get_gamehole player.id game.id coursehole.id gamehole %}
-                        <td data-player_id="{{ player.id }}">
+                        <td
+                            data-player_id="{{ player.id }}"
+                            data-player_name="{{ player.name }}">
                             <ul>
                                 <li>
                                     Throws: <input
@@ -233,10 +235,16 @@ $(function() {
     $(player_ids).each(function(i, player_id) {
         sum_player(player_id);
     });
+});
 
-    /*
+// Handles dialog on scorecard clicks
+$(function() {
+    var scorecard = $("#scorecard");
+
     // Set up dialog
     var dialog = $("#score-dialog");
+    var dialog_throws = $("#dialog-throws");
+    var dialog_ob_throws = $("#dialog-ob_throws");
 
     dialog.css("display", null);
     dialog.dialog({
@@ -247,24 +255,103 @@ $(function() {
         width: 560
     });
 
-    scorecard.find("tbody td").each(function(i, el) {
-        var el = el;
+    // Update cell text with scores
+    function paint_cell(_throws, _ob_throws, cell_text) {
+        // Empty cell if no throws
+        if (_throws == "") {
+            cell_text.html("");
+            return;
+        }
 
-        $(el).click(function(e) {
+        // Output string
+        var content = _throws;
+
+        if (_ob_throws && _ob_throws != 0) {
+            // Ugh, ugly string formatting
+            // TODO: Pull in underscore.js strings or something ?
+            content = content + " (" + _ob_throws + ")";
+        }
+
+        cell_text.html(content);
+    }
+
+    // Handle click event and dialog usage
+    scorecard.find("tbody td").each(function(i, el) {
+        var el = $(el);
+        var el_throws = el.find("input.throws");
+        var el_ob_throws = el.find("input.ob_throws");
+
+        // Hide cell contents
+        el.contents().css("display", "none");
+
+        // Create and append our own output field
+        var cell_text = $("<p></p>");
+        el.append(cell_text);
+
+        // Draw our cell usage the data already
+        // in the elements
+        paint_cell(el_throws.val(), el_ob_throws.val(), cell_text);
+
+        el.click({
+            dialog: dialog,
+            dialog_throws: dialog_throws,
+            dialog_ob_throws: dialog_ob_throws,
+            el: el,
+            el_throws: el_throws,
+            el_ob_throws: el_ob_throws,
+            cell_text: cell_text
+        }, function(el_click) {
+
+            // Trigger on dialog open
+            dialog.bind("dialogopen", {
+                el: el_click.data.el,
+                el_throws: el_click.data.el_throws,
+                el_ob_throws: el_click.data.el_ob_throws
+            }, function(dialog_open, ui) {
+
+                // Shorthand for event element
+                var e = dialog_open;
+
+                // Set values on dialog input elements
+                dialog_throws.val(e.data.el_throws.val());
+                dialog_ob_throws.val(e.data.el_ob_throws.val());
+
+                // Set title on dialog
+                dialog.dialog("option", "title", e.data.el.data("player_name"));
+            });
+
+            // Dialog buttons
             dialog.dialog("option", "buttons", {
-                "OK": function(e) {
-                    debugger;
+                "Cancel": function(e) {
+                    dialog.dialog("close");
                 },
 
-                "Cancel": function() {
-                    dialog.dialog("close");
+                "OK": function(e) {
+                    // Close over click_data
+                    return (function(click_data) {
+                        // Shorthand for click event data
+                        var e = click_data;
+
+                        // Set values back on scorecard
+                        e.el_throws.val(e.dialog_throws.val());
+                        e.el_ob_throws.val(e.dialog_ob_throws.val());
+
+                        // Trigger change event on throws element
+                        e.el_throws.change();
+
+                        // Update cell with new values
+                        paint_cell(e.el_throws.val(), e.el_ob_throws.val(),
+                            e.cell_text);
+
+                        dialog.dialog("close");
+                    })(el_click.data);
                 }
             });
 
+            // Actually open the dialog
             dialog.dialog("open");
         });
     });
-    */
 });
 
 </script>
