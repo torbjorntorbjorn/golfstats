@@ -9,6 +9,8 @@
         {% for hole in game.course.coursehole_set.all %}
         <th class="hole">{{ hole.order }}</th>
         {% endfor %}
+        <th class="throws">Throws</th>
+        <th class="score">Score</th>
     </tr>
 </thead>
 <tbody>
@@ -24,7 +26,10 @@
             {{ gamehole.throws }}
         {% endif %}
     </td>
+
     {% endfor %}
+    <td class="throws">{% game_player_throws game player %}</td>
+    <td class="score">{% game_player_score game player %}</td>
 </tr>
 {% endfor %}
 </tbody>
