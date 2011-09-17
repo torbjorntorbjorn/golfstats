@@ -5,6 +5,69 @@ register = template.base.Library()
 
 
 @register.tag
+def game_player_throws(parser, token):
+
+    try:
+        tag_name, game, player = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires two arguments" %
+            token.contents.split()[0])
+
+    return GamePlayerThrowsNode(game, player)
+
+
+class GamePlayerThrowsNode(template.Node):
+    def __init__(self, game, player):
+        self.game = Variable(game)
+        self.player = Variable(player)
+
+    def render(self, context):
+        super(GamePlayerThrowsNode, self).render(context)
+        game = self.game.resolve(context)
+        player = self.player.resolve(context)
+        throws = 0
+
+        for gamehole in game.gamehole_set.filter(player=player):
+            throws += gamehole.throws
+
+        return throws
+
+
+@register.tag
+def game_player_score(parser, token):
+
+    try:
+        tag_name, game, player = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires two arguments" %
+            token.contents.split()[0])
+
+    return GamePlayerScoreNode(game, player)
+
+
+class GamePlayerScoreNode(template.Node):
+    def __init__(self, game, player):
+        self.game = Variable(game)
+        self.player = Variable(player)
+
+    def render(self, context):
+        super(GamePlayerScoreNode, self).render(context)
+        game = self.game.resolve(context)
+        player = self.player.resolve(context)
+        score = 0
+
+        for gamehole in game.gamehole_set.filter(player=player):
+            score_hole = gamehole.throws - \
+                gamehole.coursehole.hole.par
+
+            score += score_hole
+
+        return score
+
+
+@register.tag
 def games_list_table(parser, token):
 
     try:
