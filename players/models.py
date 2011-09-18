@@ -11,5 +11,5 @@ class Player(models.Model):
         try:
             game = self.game_set.order_by('-id')[0]
             return game
-        except:
+        except IndexError:
             pass
