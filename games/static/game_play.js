@@ -220,6 +220,16 @@ $(function() {
         // in the elements
         paint_cell(el_throws.val(), el_ob_throws.val(), cell_text);
 
+        // If the input element value changes, repaint cell
+        $.each([
+            el_throws,
+            el_ob_throws
+        ], function(j, bind_el) {
+            bind_el.change(function(e) {
+                paint_cell(el_throws.val(), el_ob_throws.val(), cell_text);
+            })
+        });
+
         el.click({
             dialog: dialog,
             dialog_throws: dialog_throws,
