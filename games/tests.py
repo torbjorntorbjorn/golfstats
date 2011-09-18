@@ -258,6 +258,22 @@ class GamesTest(TestCase):
         # Assert that we can't finish game with invalid creator
         self.assertRaises(ValidationError, game.finish)
 
+    def test_verify_game(self):
+        # Start, play and finish game
+        game = make_game()
+        game.start()
+        game.save()
+
+        play_game(game)
+        game.finish()
+        game.save()
+
+        # Have each player verify game
+        for player in game.players.all():
+            game.add_verification(player)
+
+        self.assertEqual(game.verified, True)
+
 
 class GamesFrontendTest(TestCase):
     def test_index(self):

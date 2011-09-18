@@ -26,6 +26,7 @@ class Game(models.Model):
     state = models.PositiveSmallIntegerField(
         choices=STATE_CHOICES, default=STATE_CREATED,
     )
+    verified = models.BooleanField(default=False)
 
     objects = GameManager()
 
@@ -90,6 +91,37 @@ class Game(models.Model):
 
         self.state = self.STATE_ABORTED
 
+    # Check that all players have verified this game,
+    # and set verified state
+    def verify(self):
+        # Get all player ids
+        player_ids = [x.id for x in self.players.all()]
+
+        # Get the ids of players who have verified this game
+        verified_player_ids = [x.player.id for x in
+            VerifiedGame.objects.filter(game=self)]
+
+        # Equal amount of of players and verifications ?
+        if len(player_ids) != len(verified_player_ids):
+            raise ValidationError(
+                "Wrong number of verifications")
+
+        # Check that all game players have verified
+        for player_id in player_ids:
+            if player_id not in verified_player_ids:
+                raise ValidationError(
+                    "Not all players have verified this game")
+
+        # Set verified state
+        self.verified = True
+
+    # Player verifies this game
+    def add_verification(self, player):
+        VerifiedGame.objects.get_or_create(
+            player=player,
+            game=self,
+        )
+
     def _game_completed(self):
         # Will be a map of player and number of holes played
         player_hole_count = {}
@@ -148,6 +180,25 @@ class Game(models.Model):
         # Save all FinishedGames
         for player, game in finished_games.items():
             game.save()
+
+
+# Player has verified that this game is valid
+class VerifiedGame(models.Model):
+    player = models.ForeignKey(Player)
+    game = models.ForeignKey(Game)
+
+    class Meta:
+        unique_together = ("player", "game")
+
+    def save(self, *kargs, **kwargs):
+        super(VerifiedGame, self).save(*kargs, **kwargs)
+
+        # If this was the last verification, try to verify the game
+        if VerifiedGame.objects.filter(game=self.game).count() == \
+            self.game.players.all().count():
+
+            self.game.verify()
+            self.game.save()
 
 
 # This is a de-normalization that will need maintenance,
