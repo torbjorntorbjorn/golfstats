@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.contrib.auth.models import User
 
 from games.models import Game, GameHole, Course, CourseHole
 
@@ -272,6 +273,36 @@ class GamesTest(TestCase):
         for player in game.players.all():
             game.add_verification(player)
 
+        self.assertEqual(game.verified, True)
+
+    def test_automatic_verification(self):
+        # Create game
+        game = make_game()
+
+        # Have all players trust the game creator, they need users
+        for player in game.players.all():
+            player.user = User.objects.create(
+                username="testuser - %s" % (player.name))
+            player.save()
+
+            # Use this creator, self.creator is stale
+            if player.id == game.creator.id:
+                creator = player
+
+            player.add_trust(creator)
+
+        # Refresh games, we have updated players
+        game = Game.objects.get(id=game.id)
+
+        # Play and finish game
+        game.start()
+        game.save()
+
+        play_game(game)
+        game.finish()
+        game.save()
+
+        # Assert that game has been automatically verified
         self.assertEqual(game.verified, True)
 
 

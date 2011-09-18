@@ -33,6 +33,29 @@ class Game(models.Model):
     def __unicode__(self):
         return "Game %s" % (self.id)
 
+    def save(self, *kargs, **kwargs):
+        super(Game, self).save(*kargs, **kwargs)
+
+        # We are a saved instance, have finished and we are not verified
+        # We check the players trust relationship to see if we shall
+        # automatically verify the game
+        if self.id and self.state == self.STATE_FINISHED and not self.verified:
+            # TODO: We shouldn't loop twice here
+            for player in self.players.all():
+                # Does this player trust the creator ?
+                if not player.trusts(self.creator):
+                    # This player does not trust the creator,
+                    # so we give up here
+                    return
+
+            # Add verifications on all players
+            for player in self.players.all():
+                self.add_verification(player)
+
+            # All players verify the game, let's change state
+            self.verify()
+            self.save()
+
     # Checks that creator is in games
     def _is_creator_in_players(self):
         try:

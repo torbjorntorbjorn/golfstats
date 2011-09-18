@@ -18,6 +18,10 @@ class Player(models.Model):
             pass
 
     def trusts(self, player):
+        # A player trusts himself
+        if self.id == player.id:
+            return True
+
         # Both players must have users
         if not self.user or not player.user:
             return False
@@ -33,6 +37,21 @@ class Player(models.Model):
             return True
         except User.DoesNotExist:
             return False
+
+    def add_trust(self, player):
+        # Both players must have users
+        if not self.user or not player.user:
+            return False
+
+        # Are we being asked to trust outselves ?
+        if self.user.id == player.user.id:
+            return
+
+        # Grab our trust object
+        trust, created = Trust.objects.get_or_create(user=self.user)
+
+        # Trust new user
+        trust.trusts.add(player.user)
 
 
 # Represents one user trusting other users
