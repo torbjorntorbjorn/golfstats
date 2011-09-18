@@ -32,12 +32,24 @@ class Game(models.Model):
     def __unicode__(self):
         return "Game %s" % (self.id)
 
+    # Checks that creator is in games
+    def _is_creator_in_players(self):
+        try:
+            self.players.get(id=self.creator.id)
+            return True
+        except Player.DoesNotExist:
+            raise ValidationError(
+                "Game creator must be a player in this game")
+
     def start(self):
         if self.state is not self.STATE_CREATED:
             # TODO: This is bad, we should at least get the state
             # description from STATE_CHOICES
             raise ValidationError("Can only start game when state is '%s'"
                 % (self.STATE_CREATED))
+
+        # Check that creator is in players
+        self._is_creator_in_players()
 
         self.state = self.STATE_STARTED
 
@@ -47,6 +59,9 @@ class Game(models.Model):
             # description from STATE_CHOICES
             raise ValidationError("Can only finish game when state is '%s'"
                 % (self.STATE_STARTED))
+
+        # Check that creator is in players
+        self._is_creator_in_players()
 
         # We require players in order to finish
         if self.players.count() == 0:

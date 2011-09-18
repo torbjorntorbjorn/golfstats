@@ -55,6 +55,7 @@ class GamesTest(TestCase):
             creator=player,
         )
         game.save()
+        game.players = [player]
 
         game.start()
 
@@ -228,6 +229,34 @@ class GamesTest(TestCase):
         # We shouldn't be able to save gh2,
         # as its coursehole is not the same as the games
         self.assertRaises(ValidationError, gh2.save)
+
+    def test_game_creator_not_in_players(self):
+        arena = make_a_whole_arena()
+        players = make_players(5)
+        extra_player = make_players()[0]
+
+        game = Game.objects.create(
+            # TODO: This doesn't look great
+            course=arena.course_set.all()[0],
+            creator=extra_player,
+        )
+        game.players = players
+
+        # Check that game won't start with invalid creator
+        self.assertRaises(ValidationError, game.start)
+
+        # Switch to a valid creator and start game
+        game.creator = players[0]
+        game.save()
+        game.start()
+        game.save()
+
+        # Switch back to invalid creator
+        game.creator = extra_player
+        game.save()
+
+        # Assert that we can't finish game with invalid creator
+        self.assertRaises(ValidationError, game.finish)
 
 
 class GamesFrontendTest(TestCase):
