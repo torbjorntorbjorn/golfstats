@@ -176,33 +176,49 @@ class Game(models.Model):
         return True
 
     def _create_finished_games(self):
-        # Maps players and FinishedGames
-        finished_games = {}
+        # Holds dict with resulting scores for players
+        scores = {}
 
-        # Iterate all gameholes
         for gamehole in self.gamehole_set.all():
-
-            # If player hasn't been seen, create a FinishedGame
-            if gamehole.player not in finished_games:
-                finished_games[gamehole.player] = FinishedGame(
-                    player=gamehole.player,
-                    game=self,
-                    score=0,
-                    throws=0,
-                    ob_throws=0,
-                )
+            # Create scoring dict if we have not seen player
+            if gamehole.player not in scores:
+                scores[gamehole.player] = {
+                    "score": 0,
+                    "throws": 0,
+                    "ob_throws": 0,
+                }
 
             # Shorthand
-            g = finished_games[gamehole.player]
+            our_score = scores[gamehole.player]
 
             # Tally up
-            g.score += gamehole.score
-            g.throws += gamehole.throws
-            g.ob_throws += gamehole.ob_throws
+            our_score["score"] += gamehole.score
+            our_score["throws"] += gamehole.throws
+            our_score["ob_throws"] += gamehole.ob_throws
 
-        # Save all FinishedGames
-        for player, game in finished_games.items():
-            game.save()
+        # Sort score objects by score value
+        sorted_scores = sorted(list(scores.items()),
+            key=lambda s: s[1]["score"])
+
+        finished_game = FinishedGame.objects.create(
+            game=self,
+        )
+
+        # Create FinishedGamePlayer objects, using
+        # ordering based on score objects
+        for order, player_score in enumerate(sorted_scores):
+            player, score = player_score
+
+            fgp = FinishedGamePlayer.objects.create(
+                player=player,
+                game=self,
+                order=order,
+                score=score["score"],
+                throws=score["throws"],
+                ob_throws=score["ob_throws"],
+            )
+
+            finished_game.players.add(fgp)
 
 
 # Player has verified that this game is valid
@@ -224,15 +240,26 @@ class VerifiedGame(models.Model):
             self.game.save()
 
 
-# This is a de-normalization that will need maintenance,
-# but greatly simplifies querying for interesting stuff
-class FinishedGame(models.Model):
+# This class is a summary of game and gameholes
+# It's basically a denormalization, but saves lot of work
+class FinishedGamePlayer(models.Model):
     player = models.ForeignKey(Player)
     game = models.ForeignKey(Game)
 
-    score = models.IntegerField()
-    throws = models.IntegerField()
-    ob_throws = models.IntegerField()
+    order = models.PositiveIntegerField()
+    score = models.PositiveIntegerField()
+    throws = models.PositiveIntegerField()
+    ob_throws = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ("player", "game", "order")
+
+
+# This class is a summary of game and gameholes
+# It's basically a denormalization, but saves lot of work
+class FinishedGame(models.Model):
+    game = models.OneToOneField(Game)
+    players = models.ManyToManyField(FinishedGamePlayer)
 
 
 class GameHole(models.Model):

@@ -88,27 +88,43 @@ class GamesTest(TestCase):
         game.finish()
         game.save()
 
-        # Check that all players have a FinishedGame
-        finished_games = game.finishedgame_set.all()
-        finished_games_players = [x.player for x in finished_games]
+        # Check that a FinishedGame got created
+        self.assertNotEqual(game.finishedgame.id, None)
 
+        finished_game = game.finishedgame
+
+        # Check that all players have a FinishedGamePlayer
+        finished_players = [f.player for f in finished_game.players.all()]
         players = game.players.all()
 
-        for player in players:
-            self.assertIn(player, finished_games_players)
+        # All finishedgame players are in game
+        for player in finished_players:
+            self.assertIn(player, players)
 
-        for finished_game in finished_games:
-            courseholes = [h for h in game.gamehole_set.all()
-                if h.player == finished_game.player]
+        # TODO: Figure out how test ordering
+        scores = {}
 
-            throws = sum([h.throws for h in courseholes])
-            self.assertEqual(finished_game.throws, throws)
+        # Generate our own scores
+        for gh in game.gamehole_set.all():
+            if gh.player.id not in scores:
+                scores[gh.player.id] = {
+                    "score": 0,
+                    "throws": 0,
+                    "ob_throws": 0,
+                }
 
-            score = sum([h.score for h in courseholes])
-            self.assertEqual(finished_game.score, score)
+            our_score = scores[gh.player.id]
+            our_score["score"] += gh.score
+            our_score["throws"] += gh.throws
+            our_score["ob_throws"] += gh.ob_throws
 
-            ob_throws = sum([h.ob_throws for h in courseholes])
-            self.assertEqual(finished_game.ob_throws, ob_throws)
+        # Check that we have all the scores and correct values
+        for fgp in game.finishedgameplayer_set.all():
+            our_score = scores[fgp.player.id]
+
+            self.assertEqual(our_score["score"], fgp.score)
+            self.assertEqual(our_score["throws"], fgp.throws)
+            self.assertEqual(our_score["ob_throws"], fgp.ob_throws)
 
     def test_game_start(self):
         game = make_game()
