@@ -1,30 +1,15 @@
 "use strict";
 
 // Development helper
-window.addEventListener("load", function() {
-    var button = document.createElement("button");
-    button.innerHTML = "fill scorecard with values";
-
-    button.addEventListener("click", function() {
-        var inputs = document.getElementsByTagName("input");
-
-        for (var i = 0; i < inputs.length; i++) {
-            var input = inputs[i];
-
-            if (input.name.search("throws") === 0) {
-                input.value = "3";
-            }
-
-            if (input.name.search("ob_throws") === 0) {
-                input.value = "0";
-            }
+$(function() {
+    var button = $("<button></button>", {
+        text: "debug: fill scorecard",
+        click: function(e) {
+            $("#scorecard input.ob_throws").val(0);
+            $("#scorecard input.throws").val(3).change();
         }
-    }, false);
-
-    var s = document.getElementsByTagName("section")[0];
-    s.appendChild(button);
-
-}, false);
+    }).appendTo("section:first");
+});
 
 // Handles result row, scores and changes to
 // score elements
