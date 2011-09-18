@@ -97,11 +97,28 @@
 
 <div id="score-dialog" style="display: none">
     <dl>
-        <dd>Throws</dd>
-        <dt><input type="number" id="dialog-throws"></dt>
+        <dt>Throws</dt>
+        <dd><input type="number" id="dialog-throws" maxlength="2" size="2"></dd>
+        <dd>
+            <ol id="throws-selector" class="number-selector">
+                <li>2</li>
+                <li>3</li>
+                <li>4</li>
+                <li>5</li>
+                <li>6</li>
+            </ol>
+        </dd>
 
-        <dd>OB throws</dd>
-        <dt><input type="number" id="dialog-ob_throws"></dt>
+        <dt>OB throws</dt>
+        <dd><input type="number" id="dialog-ob_throws" maxlength="2" size="2"></dd>
+        <dd>
+            <ol id="ob_throws-selector" class="number-selector">
+                <li>0</li>
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+            </ol>
+        </dd>
     </dl>
 </div>
 
@@ -277,6 +294,59 @@ $(function() {
         cell_text.html(content);
     }
 
+    // Maps names to selector meta-objects
+    // The meta-objects describe a row selector buttons
+    var selector_names = {
+        "throws": {
+            "selector": $("#throws-selector li"),
+            "adjust_val": -2
+        },
+
+        "ob_throws": {
+            "selector": $("#ob_throws-selector li"),
+            "adjust_val": 0
+        }
+    };
+
+    // Update which button is active
+    function update_selector(name, val) {
+        var current =  selector_names[name];
+        var els = current.selector;
+
+        // Value comes straigt from input element content,
+        // needs to be shited to be used as index
+        var val = parseInt(val, 10) + current.adjust_val;
+
+        // Valus is higher than length or buttons, or below 0,
+        // so we just disable all buttons and return
+        if (val > els.length || val < 0) {
+            els.removeClass("active");
+            return;
+        }
+
+        var selected = $(els.get(val));
+        // If the selected element is not currently selectd,
+        // disable all buttons and set the right one as selected
+        if (!selected.hasClass("active")) {
+            els.removeClass("active");
+            selected.addClass("active");
+        }
+    }
+
+    // Bind the dialog input elements to the selector buttons,
+    // so that the buttons are correct when 
+    // changing the input element directly.
+    $.each({
+        "throws": dialog_throws,
+        "ob_throws": dialog_ob_throws
+
+    }, function(name, el) {
+        // Call update_selector on all changes to input element
+        el.bind("change keyup click", function(e) {
+            update_selector(name, el.val());
+        });
+    });
+
     // Handle click event and dialog usage
     scorecard.find("tbody td").each(function(i, el) {
         var el = $(el);
@@ -318,6 +388,10 @@ $(function() {
                 dialog_throws.val(e.data.el_throws.val());
                 dialog_ob_throws.val(e.data.el_ob_throws.val());
 
+                // Update dialog selectors
+                update_selector("throws", e.data.el_throws.val());
+                update_selector("ob_throws", e.data.el_ob_throws.val());
+
                 // Set title on dialog
                 dialog.dialog("option", "title", e.data.el.data("player_name"));
             });
@@ -352,6 +426,28 @@ $(function() {
 
             // Actually open the dialog
             dialog.dialog("open");
+        });
+    });
+
+    // Connect selectors to elements
+    var selector_clicks = [
+        [selector_names["throws"], dialog_throws],
+        [selector_names["ob_throws"], dialog_ob_throws]
+    ];
+
+    // Generic handling of selector button clicks
+    $.each(selector_clicks, function(i, tuple) {
+        var current = tuple[0]; // selector metaobject
+        var el = tuple[1]; // dialog input element
+
+        // Clicking on a selector button updates
+        // the dialog input element
+        current.selector.live('click', function(e) {
+            el.val(e.target.innerHTML);
+
+            var t = $(e.target);
+            t.siblings().removeClass("active");
+            t.addClass("active");
         });
     });
 });
