@@ -10,7 +10,6 @@ class Player(models.Model):
     def last_game(self):
         try:
             game = self.game_set.order_by('-id')[0]
-        except:
-            return False
-        else:
             return game
+        except:
+            pass
