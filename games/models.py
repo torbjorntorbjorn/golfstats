@@ -158,3 +158,16 @@ class GameHole(models.Model):
     @property
     def score(self):
         return self.coursehole.hole.par - self.throws
+
+    def clean(self):
+        # Ensure that our course is the same course as
+        # the game is played on
+        if self.coursehole.course.id != self.game.course.id:
+            raise ValidationError(
+                "Coursehole must be on same course as game")
+
+    def save(self, *kargs, **kwargs):
+        # Trigger custom validation
+        self.clean()
+
+        super(GameHole, self).save(*kargs, **kwargs)

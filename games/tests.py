@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
-from games.models import Game, GameHole
+from games.models import Game, GameHole, Course, CourseHole
 
 from courses.tests import make_a_whole_arena, make_course
 from players.tests import make_players
@@ -185,6 +185,46 @@ class GamesTest(TestCase):
         )
 
         self.assertRaises(IntegrityError, gh2.save)
+
+    def test_gamehole_on_wrong_course(self):
+        game = make_game()
+        player = game.players.all()[0]
+        coursehole = game.course.coursehole_set.all()[0]
+
+        gh1 = GameHole(
+            player=player,
+            game=game,
+            coursehole=coursehole,
+            throws=3,
+            ob_throws=0,
+        )
+        gh1.save()
+
+        # Create a new course
+        course2 = Course.objects.create(
+            arena=game.course.arena,
+            name="test - course 2",
+        )
+
+        # Create a new coursehole
+        coursehole2 = CourseHole.objects.create(
+            course=course2,
+            hole=coursehole.hole,
+            order=1,
+            name="test - coursehole 2",
+        )
+
+        gh2 = GameHole(
+            player=player,
+            game=game,
+            coursehole=coursehole2,
+            throws=3,
+            ob_throws=0,
+        )
+
+        # We shouldn't be able to save gh2,
+        # as its coursehole is not the same as the games
+        self.assertRaises(ValidationError, gh2.save)
 
 
 class GamesFrontendTest(TestCase):
