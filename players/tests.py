@@ -1,6 +1,8 @@
 from django.test import TestCase, Client
 
-from players.models import Player
+from django.contrib.auth.models import User
+
+from players.models import Player, Trust
 
 
 def make_players(count=1):
@@ -21,6 +23,40 @@ class PlayerTest(TestCase):
         p = make_players()[0]
 
         self.assertNotEqual(p.id, None)
+
+    def test_add_user(self):
+        u = User.objects.create(
+            username="testuser",
+        )
+
+        p = make_players()[0]
+        p.user = u
+        p.save()
+
+        self.assertNotEqual(p.user.id, None)
+
+    def test_trust(self):
+        # Create players
+        players = make_players(2)
+
+        # Create users for players
+        for player in players:
+            u = User.objects.create(
+                username=player.name,
+            )
+            player.user = u
+            player.save()
+
+        p1 = players[0]
+
+        # Establish trust from p1 to p2
+        p2 = players[1]
+        t1 = Trust.objects.create(
+            user=p1.user,
+        )
+        t1.trusts.add(p2.user)
+
+        self.assertEqual(p1.trusts(p2), True)
 
 
 class PlayerFrontendTest(TestCase):
