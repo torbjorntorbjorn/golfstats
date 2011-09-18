@@ -16,6 +16,7 @@ def make_game():
     game = Game.objects.create(
         # TODO: This doesn't look greait
         course=arena.course_set.all()[0],
+        creator=players[0],
     )
     game.players = players
 
@@ -47,9 +48,11 @@ class GamesTest(TestCase):
     def test_game_requires_players(self):
         arena = make_a_whole_arena()
         course = make_course(arena)[0]
+        player = make_players()[0]
 
         game = Game(
             course=course,
+            creator=player,
         )
         game.save()
 
@@ -236,6 +239,7 @@ class GamesFrontendTest(TestCase):
         for i in range(4):
             g = Game.objects.create(
                 course=game.course,
+                creator=game.players.all()[0],
             )
             g.player = game.players
             games.append(g)
@@ -267,12 +271,23 @@ class GamesFrontendTest(TestCase):
             "course": course.id,
             "players": [p.id for p in players],
             "state": Game.STATE_CREATED,
+            "creator": players[0].id,
         })
 
         self.assertEqual(r.status_code, 302)
 
         # Ensure we have created a new game
         self.assertEqual(Game.objects.all().count(), 1)
+
+        # Get our created game
+        game = Game.objects.all()[0]
+
+        # Assert that all posted players are in game
+        for player in players:
+            self.assertIn(player, game.players.all())
+
+        # Our posted creator is the creator ?
+        self.assertEqual(players[0].id, game.creator.id)
 
     def test_detail(self):
         game = make_game()

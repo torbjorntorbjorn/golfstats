@@ -21,6 +21,7 @@ class Game(models.Model):
     )
 
     course = models.ForeignKey(Course)
+    creator = models.ForeignKey(Player, related_name="created_games_set")
     players = models.ManyToManyField(Player)
     state = models.PositiveSmallIntegerField(
         choices=STATE_CHOICES, default=STATE_CREATED,
