@@ -18,6 +18,10 @@ class Player(models.Model):
             pass
 
     def trusts(self, player):
+        # Player with no self.user trusts everybody
+        if not self.user:
+            return True
+
         # A player trusts himself
         if self.id == player.id:
             return True
