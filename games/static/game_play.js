@@ -2,11 +2,26 @@
 
 // Development helper
 $(function() {
-    var button = $("<button></button>", {
-        text: "debug: fill scorecard",
+    // Copypasta from MDC
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    $("<button></button>", {
+        text: "debug: fill scorecard with par",
         click: function(e) {
             $("#scorecard input.ob_throws").val(0);
             $("#scorecard input.throws").val(3).change();
+        }
+    }).appendTo("section:first");
+
+    $("<button></button>", {
+        text: "debug: fill scorecard with random",
+        click: function(e) {
+            $("#scorecard input.ob_throws").val(0);
+            $("#scorecard input.throws").each(function(i, el) {
+                $(this).val(getRandomInt(1,6)).change();
+            });
         }
     }).appendTo("section:first");
 });
