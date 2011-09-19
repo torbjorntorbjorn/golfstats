@@ -17,6 +17,19 @@
     <dt>State</dt>
     <dd>{{ game.get_state_display }}</dd>
 
+    <dt>Verified</dt>
+    <dd>{% if game.verified %}
+        Yes
+    {% else %}
+        No
+    {% endif %}</dd>
+
+    <dt>Creator</dt>
+    <dd><a
+        href="{% url "golfstats-players-players-detail" game.creator.id %}">
+        {{ game.creator }}
+    </a></dd>
+
     <dt>Players</dt>
     <dd>
         <ul class="horizontal">
