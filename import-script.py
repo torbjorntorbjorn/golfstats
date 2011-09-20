@@ -1,5 +1,4 @@
 import os
-import sys
 import stat
 import datetime
 import requests
@@ -15,9 +14,9 @@ from courses.models import Course, Arena, Hole, Tee, Basket, CourseHole
 from players.models import Player
 from games.models import Game, GameHole
 
-OLD_DB_URL="http://diskgolf.gurgle.no/media/golfstats.sql.gz"
-OLD_DB_NAME="golfstats_import_tmp"
-TARGET_FILENAME=OLD_DB_URL.split("/")[-1]  # last part of URL
+OLD_DB_URL = "http://diskgolf.gurgle.no/media/golfstats.sql.gz"
+OLD_DB_NAME = "golfstats_import_tmp"
+TARGET_FILENAME = OLD_DB_URL.split("/")[-1]  # last part of URL
 
 # Is the file up to date ?
 file_current = False
@@ -32,13 +31,13 @@ try:
 
     # Probably a previous download gone wrong
     if target_size is 0:
-        os.unlink(target)
+        os.unlink(TARGET_FILENAME)
         print "Delete 0-sized download"
 
     delta = datetime.datetime.now() - target_mtime
 
     # Too old
-    if delta.seconds < 60*60 and target_size is not 0:
+    if delta.seconds < 60 * 60 and target_size is not 0:
         print "Database download is fresh, skipping download"
         file_current = True
 
@@ -76,22 +75,24 @@ if downloaded_file:
     print "Dropping and loading database"
     # Drop database if it exists
     # Assume that the mysql binary can connect without arguments
-    p = subprocess.Popen(["mysql", "-e", "DROP DATABASE IF EXISTS `%s`" % (OLD_DB_NAME)])
+    p = subprocess.Popen(
+        ["mysql", "-e", "DROP DATABASE IF EXISTS `%s`" % (OLD_DB_NAME)])
     p.wait()
 
     if p.returncode != 0:
         raise Exception("Could not drop database")
 
     # Create the database anew
-    p = subprocess.Popen(["mysql", "-e", "CREATE DATABASE `%s` CHARSET utf8" % (OLD_DB_NAME)])
+    p = subprocess.Popen(
+        ["mysql", "-e", "CREATE DATABASE `%s` CHARSET utf8" % (OLD_DB_NAME)])
     p.wait()
 
     if p.returncode != 0:
         raise Exception("Could not create new database")
 
     # Load database
-    p = subprocess.Popen("gunzip -c %s | mysql %s" % (TARGET_FILENAME, OLD_DB_NAME),
-        shell=True)
+    shell_exec = "gunzip -c %s | mysql %s" % (TARGET_FILENAME, OLD_DB_NAME)
+    p = subprocess.Popen(shell_exec, shell=True)
     p.wait()
 
     if p.returncode != 0:
