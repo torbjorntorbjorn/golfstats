@@ -97,7 +97,9 @@
         </tfoot>
     </table>
 
+{% ifequal game.state game.STATE_STARTED %}
 <button type="submit" name="score">Save</button>
+{% endifequal %}
 </form>
 
 <div id="score-dialog" style="display: none">
