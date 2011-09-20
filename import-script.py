@@ -22,7 +22,7 @@ CourseHole.objects.all().delete()
 GameHole.objects.all().delete()
 
 courses = []
-players = {} 
+players = {}
 games = []
 
 
@@ -35,25 +35,24 @@ for player_row in cur.fetchall():
     players.update({player_row['id']: player})
 
 
-
-# Start with going through the different courses 
+# Start with going through the different courses
 cur.execute('SELECT * FROM main_track')
 
 for course_row in cur.fetchall():
     # Now first we must create the Arena
     arena = Arena.objects.create(
-       name = course_row['name'])
+       name=course_row['name'])
 
     # And the Course
     course = Course.objects.create(
-        arena = arena, name = course_row['name'])
+        arena=arena, name=course_row['name'])
 
     # Now go through the holes
-    cur.execute('SELECT * FROM main_hole WHERE track_id=%i' 
+    cur.execute('SELECT * FROM main_hole WHERE track_id=%i'
         % course_row['id'])
 
     holes = cur.fetchall()
-    courseholes = {} 
+    courseholes = {}
 
     for hole_row in holes:
 
@@ -64,13 +63,12 @@ for course_row in cur.fetchall():
 
         hole = Hole.objects.create(tee=tee,
             basket=basket, par=hole_row['par'])
-            
+
         coursehole = CourseHole.objects.create(
             course=course, hole=hole,
             order=hole_row['order'], name=hole_row['name'])
 
         courseholes.update({hole_row['id']: coursehole})
-
 
     courses.append({
         'id': course_row['id'],
@@ -116,7 +114,7 @@ for course_row in cur.fetchall():
             cur.execute(
                 'SELECT * FROM main_score WHERE game_id=%s and player_id=%s'
                 % (game_row['id'], game_player['player_id']))
-            
+
             for score_row in cur.fetchall():
                 # Lets create GameHole
                 GameHole.objects.create(
@@ -132,4 +130,3 @@ for course_row in cur.fetchall():
 
         print 'Finished game %s (original ID: %s) on %s' % \
             (game.id, game_row['id'], game.course)
-
