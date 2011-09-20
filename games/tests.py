@@ -324,6 +324,30 @@ class GamesTest(TestCase):
         # Assert that game has been automatically verified
         self.assertEqual(game.verified, True)
 
+    def test_game_has_dnf_player(self):
+        # Create and play game
+        game = make_game()
+        game.start()
+        play_game(game)
+
+        # Grab a gamehole and set to 0
+        gh = game.gamehole_set.all()[0]
+        gh.throws = 0
+        gh.ob_throws = 0
+        gh.save()
+
+        # Finish game
+        game.finish()
+
+        # Refresh game to get FinishedGame object
+        game = Game.objects.get(id=game.id)
+
+        # Grab FinishedGamePlayer we zeroed out a hole for
+        fgp = game.finishedgame.players.get(player__id=gh.player.id)
+
+        # Assert that player has DNF state
+        self.assertEqual(fgp.dnf, True)
+
 
 class GamesFrontendTest(TestCase):
     def test_index(self):

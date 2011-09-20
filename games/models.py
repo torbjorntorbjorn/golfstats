@@ -186,6 +186,7 @@ class Game(models.Model):
                     "score": 0,
                     "throws": 0,
                     "ob_throws": 0,
+                    "dnf": False,
                 }
 
             # Shorthand
@@ -195,6 +196,10 @@ class Game(models.Model):
             our_score["score"] += gamehole.score
             our_score["throws"] += gamehole.throws
             our_score["ob_throws"] += gamehole.ob_throws
+
+            # Set DNF flag if there are no throws
+            if gamehole.throws <= 0:
+                our_score["dnf"] = True
 
         # Sort score objects by score value
         sorted_scores = sorted(list(scores.items()),
@@ -216,6 +221,7 @@ class Game(models.Model):
                 score=score["score"],
                 throws=score["throws"],
                 ob_throws=score["ob_throws"],
+                dnf=score["dnf"],
             )
 
             finished_game.players.add(fgp)
@@ -250,6 +256,8 @@ class FinishedGamePlayer(models.Model):
     score = models.PositiveIntegerField()
     throws = models.PositiveIntegerField()
     ob_throws = models.PositiveIntegerField()
+
+    dnf = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("player", "game", "order")
