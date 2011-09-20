@@ -10,19 +10,23 @@
 <table class="finished-games">
     <thead>
         <tr>
+            <th>Game</th>
             <th>Date played</th>
             <th>Course</th>
             <th>Throws</th>
             <th>Score</th>
+            <th>Rank</th>
         </tr>
     </thead>
     <tbody>
-        {% for game in player.finishedgame_set.all %}
+        {% for finished_game in player.finishedgameplayer_set.all %}
         <tr>
+            <td><a href="{% url "golfstats-games-games-detail" finished_game.game.id %}">{{ finished_game.game.id }}</a></td>
             <td>N/A</td>
-            <td><a href="{% url "golfstats-courses-course-detail" game.game.course.id %}">{{ game.game.course }}</a></td>
-            <td>{{ game.throws }}</td>
-            <td>{{ game.score }}</td>
+            <td><a href="{% url "golfstats-courses-course-detail" finished_game.game.course.id %}">{{ finished_game.game.course }}</a></td>
+            <td>{{ finished_game.throws }}</td>
+            <td>{{ finished_game.score }}</td>
+            <td>{{ finished_game.order }}</td>
         </tr>
         {% endfor %}
     </tbody>

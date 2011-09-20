@@ -30,6 +30,9 @@ class Game(models.Model):
 
     objects = GameManager()
 
+    class Meta:
+        ordering = ('-id',)
+
     def __unicode__(self):
         return "Game %s" % (self.id)
 
@@ -261,6 +264,7 @@ class FinishedGamePlayer(models.Model):
 
     class Meta:
         unique_together = ("player", "game", "order")
+        ordering = ('order',)
 
 
 # This class is a summary of game and gameholes
