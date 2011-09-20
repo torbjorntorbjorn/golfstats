@@ -6,6 +6,10 @@
 {% block content %}
 <h1>Playing game {{ game.id }}</h1>
 
+<p><a href="{% url "golfstats-games-games-detail" game.id %}">
+    View game details
+</a></p>
+
 <section>
     <h2>Game state</h2>
 
