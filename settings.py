@@ -158,3 +158,9 @@ LOGGING = {
 
 # Nose test runner
 TEST_RUNNER="django_nose.NoseTestSuiteRunner"
+
+# Check if we should import some local settings
+if DEBUG:
+    import os.path
+    if os.path.isfile("settings_local.py"):
+        from settings_local import *
