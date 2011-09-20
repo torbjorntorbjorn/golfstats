@@ -1,3 +1,5 @@
 *.pyc
 *.swp
 db.db
+golfstats.sql.gz
+settings_local.py
