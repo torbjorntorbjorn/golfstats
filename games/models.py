@@ -291,6 +291,10 @@ class GameHole(models.Model):
             raise ValidationError(
                 "Coursehole must be on same course as game")
 
+        if self.game.state != self.game.STATE_STARTED:
+            raise ValidationError(
+                "GameHole can only be created on a started game")
+
     def save(self, *kargs, **kwargs):
         # Trigger custom validation
         self.clean()

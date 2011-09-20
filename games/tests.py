@@ -185,6 +185,9 @@ class GamesTest(TestCase):
 
     def test_gamehole_unique_constraint(self):
         game = make_game()
+        game.start()
+        game.save()
+
         player = game.players.all()[0]
         coursehole = game.course.coursehole_set.all()[0]
 
@@ -212,6 +215,9 @@ class GamesTest(TestCase):
 
     def test_gamehole_on_wrong_course(self):
         game = make_game()
+        game.start()
+        game.save()
+
         player = game.players.all()[0]
         coursehole = game.course.coursehole_set.all()[0]
 
@@ -328,6 +334,7 @@ class GamesTest(TestCase):
         # Create and play game
         game = make_game()
         game.start()
+        game.save()
         play_game(game)
 
         # Grab a gamehole and set to 0
