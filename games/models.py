@@ -253,7 +253,7 @@ class FinishedGamePlayer(models.Model):
     game = models.ForeignKey(Game)
 
     order = models.PositiveIntegerField()
-    score = models.PositiveIntegerField()
+    score = models.IntegerField()
     throws = models.PositiveIntegerField()
     ob_throws = models.PositiveIntegerField()
 
