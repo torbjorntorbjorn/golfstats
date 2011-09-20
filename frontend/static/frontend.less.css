@@ -19,6 +19,15 @@ table, td, th {
   border-collapse: collapse;
   padding: 0.25em;
 }
+table td.par {
+  background-color: white;
+}
+table td.overpar {
+  background-color: red;
+}
+table td.belowpar {
+  background-color: green;
+}
 table.standings td.hole {
   text-align: center;
 }
@@ -28,15 +37,6 @@ table.standings th.hole {
 table.standings th.player {
   width: 10em;
   text-align: left;
-}
-table.standings td.par {
-  background-color: white;
-}
-table.standings td.overpar {
-  background-color: red;
-}
-table.standings td.belowpar {
-  background-color: green;
 }
 dl.model-details {
   width: 400px;

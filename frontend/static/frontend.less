@@ -25,6 +25,20 @@ table, td, th {
     padding: 0.25em;
 }
 
+table td {
+    &.par {
+        background-color: white;
+    }
+
+    &.overpar {
+        background-color: red;
+    }
+
+    &.belowpar {
+        background-color: green;
+    }
+}
+
 table.standings {
 
     td.hole {
@@ -38,18 +52,6 @@ table.standings {
     th.player {
         width: 10em;
         text-align: left;
-    }
-
-    td.par {
-        background-color: white;
-    }
-
-    td.overpar {
-        background-color: red;
-    }
-
-    td.belowpar {
-        background-color: green;
     }
 }
 
