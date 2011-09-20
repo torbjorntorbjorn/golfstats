@@ -1,24 +1,38 @@
 {% load url from future %}
-<table class="">
+{% load golfstats_games %}
+<table>
     <thead>
         <tr>
             <th>ID</th>
-            <th>Date played</th>
+            <th>Date</th>
+            <th>Course</th>
+            <th>State</th>
             <th>Players</th>
         </tr>
     </thead>
     <tbody>
         {% for game in games %}
-        <tr>
-            <td><a href="{% url "golfstats-games-games-detail" game.id %}">{{ game.id }}</a></td>
-            <td>N/A</td>
-            <td>
-                {% for player in game.players.all %}
-                    <a href="{% url "golfstats-players-players-detail" player.id %}">{{ player.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
-                {% endfor %}
-            </td>
-        </tr>
+            <tr>
+                <td><a href="{% url "golfstats-games-games-detail" game.id %}">{{ game.id }}</a></td>
+                <td>N/A</td>
+                <td><a href="{% url "golfstats-courses-course-detail" game.course.id %}">{{ game.course }}</a></td>
+                <td>{{ game.get_state_display }}</td>
+                <td>
+                    {% if game.finishedgameplayer_set.all %}
+                        {% for gameplayer in game.finishedgameplayer_set.all %}
+                            {{ gameplayer.player }} ({{ gameplayer.score }}), 
+                        {% endfor %}
+                    {% else %}
+                        {% for player in game.players.all %}
+                            {{ player }} ({% game_player_score game player %}), 
+                        {% endfor %}
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">No games available</td>
+            </tr>
         {% endfor %}
     </tbody>
 </table>
-
