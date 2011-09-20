@@ -197,6 +197,7 @@ class GamesTest(TestCase):
         )
         gh1.save()
 
+        # Create identical gamehole as gh1
         gh2 = GameHole(
             player=player,
             game=game,
@@ -205,6 +206,8 @@ class GamesTest(TestCase):
             ob_throws=0,
         )
 
+        # Should not be able to save gh2, violates
+        # unique constraint.
         self.assertRaises(IntegrityError, gh2.save)
 
     def test_gamehole_on_wrong_course(self):
