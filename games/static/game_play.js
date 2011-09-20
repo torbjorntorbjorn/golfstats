@@ -2,6 +2,11 @@
 
 // Development helper
 $(function() {
+    // Do we need these buttons ?
+    if ($("#scorecard input.throws").length === 0) {
+        return;
+    }
+
     // Copypasta from MDC
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
