@@ -17,6 +17,9 @@ from courses.views import (ArenaDetailView,
                             CourseDetailView,)
 
 urlpatterns = patterns('',
+    # TODO: Break these out into multiple urlpatterns
+
+    # Arena
     url(r'^arenas/$', ListView.as_view(
         model=Arena,
         context_object_name="arenas",
@@ -44,6 +47,7 @@ urlpatterns = patterns('',
         success_url=reverse_lazy('golfstats-courses-arenas'),
     ), name="golfstats-courses-arenas-delete"),
 
+    # Tees
     url(r'^tees/$', ListView.as_view(
         model=Tee,
         context_object_name="tees",
@@ -71,6 +75,7 @@ urlpatterns = patterns('',
         success_url=reverse_lazy('golfstats-courses-tees'),
     ), name="golfstats-courses-tee-delete"),
 
+    # Holes
     url(r'^holes/$', ListView.as_view(
         model=Hole,
         context_object_name="holes",
@@ -98,7 +103,7 @@ urlpatterns = patterns('',
         success_url=reverse_lazy('golfstats-courses-holes'),
     ), name="golfstats-courses-hole-delete"),
 
-    # Basket CRUD
+    # Basket
     url(r'^baskets/$', ListView.as_view(
         model=Basket,
         context_object_name="baskets",
@@ -126,6 +131,7 @@ urlpatterns = patterns('',
         success_url=reverse_lazy('golfstats-courses-baskets'),
     ), name="golfstats-courses-baskets-delete"),
 
+    # Course
     url(r'^courses/$', ListView.as_view(
         model=Course,
         context_object_name="courses",
@@ -153,6 +159,7 @@ urlpatterns = patterns('',
         success_url=reverse_lazy('golfstats-courses-courses'),
     ), name="golfstats-courses-course-delete"),
 
+    # Coursehole
     url(r'^courseholes/$', ListView.as_view(
         model=CourseHole,
         context_object_name="courseholes",
