@@ -1,5 +1,6 @@
 from django import template
 from django.template import Variable
+from django.template.base import VariableDoesNotExist
 
 from games.models import FinishedGamePlayer
 
@@ -163,7 +164,13 @@ class HoleScoreCssClassNode(template.Node):
 
     def render(self, context):
         super(HoleScoreCssClassNode, self).render(context)
-        gamehole = self.gamehole.resolve(context)
+
+        # Gamehole might not exist, then we just return the empty string
+        try:
+            gamehole = self.gamehole.resolve(context)
+        except VariableDoesNotExist:
+            return ''
+
         throws = gamehole.throws
         par = gamehole.coursehole.hole.par
 
