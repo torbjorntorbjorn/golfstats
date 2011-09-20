@@ -1,3 +1,10 @@
+import os
+import sys
+import stat
+import datetime
+import requests
+import subprocess
+
 from django.core.management import setup_environ
 import settings
 import MySQLdb
@@ -8,9 +15,92 @@ from courses.models import Course, Arena, Hole, Tee, Basket, CourseHole
 from players.models import Player
 from games.models import Game, GameHole
 
-db = MySQLdb.connect(user='golfstats_import',
-    db='golfstats_import_tmp', passwd='golfstats_import_tmp123',
-    use_unicode=True, cursorclass=DictCursor)
+OLD_DB_URL="http://diskgolf.gurgle.no/media/golfstats.sql.gz"
+OLD_DB_NAME="golfstats_import_tmp"
+TARGET_FILENAME=OLD_DB_URL.split("/")[-1]  # last part of URL
+
+# Is the file up to date ?
+file_current = False
+downloaded_file = False
+
+# Check the current file
+try:
+    target_stat = os.stat(TARGET_FILENAME)
+    target_mtime = datetime.datetime.fromtimestamp(
+        target_stat[stat.ST_MTIME])
+    target_size = target_stat[stat.ST_MTIME]
+
+    # Probably a previous download gone wrong
+    if target_size is 0:
+        os.unlink(target)
+        print "Delete 0-sized download"
+
+    delta = datetime.datetime.now() - target_mtime
+
+    # Too old
+    if delta.seconds < 60*60 and target_size is not 0:
+        print "Database download is fresh, skipping download"
+        file_current = True
+
+except OSError:
+    target_stat = False
+
+if target_stat and not file_current:
+    # Do a HEAD request to check size
+    head_req = requests.head(OLD_DB_URL)
+
+    # Same size local and remote ?
+    if "content-length" in head_req.headers:
+        remote_size = int(head_req.headers["content-length"])
+
+        if remote_size == target_stat[stat.ST_SIZE]:
+            print "Database has same size remote and local, assuming same"
+            file_current = True
+
+if not file_current:
+    get_req = requests.get(OLD_DB_URL)
+    get_req.raise_for_status()
+
+    if get_req.ok:
+        print "Downloading database"
+        with file(TARGET_FILENAME, "wb") as f:
+            for content in get_req.iter_content():
+                f.write(content)
+
+        downloaded_file = True
+
+    else:
+        raise Exception("Could not download database")
+
+if downloaded_file:
+    print "Dropping and loading database"
+    # Drop database if it exists
+    # Assume that the mysql binary can connect without arguments
+    p = subprocess.Popen(["mysql", "-e", "DROP DATABASE IF EXISTS `%s`" % (OLD_DB_NAME)])
+    p.wait()
+
+    if p.returncode != 0:
+        raise Exception("Could not drop database")
+
+    # Create the database anew
+    p = subprocess.Popen(["mysql", "-e", "CREATE DATABASE `%s` CHARSET utf8" % (OLD_DB_NAME)])
+    p.wait()
+
+    if p.returncode != 0:
+        raise Exception("Could not create new database")
+
+    # Load database
+    p = subprocess.Popen("gunzip -c %s | mysql %s" % (TARGET_FILENAME, OLD_DB_NAME),
+        shell=True)
+    p.wait()
+
+    if p.returncode != 0:
+        raise Exception("Could not load database")
+
+# Connect to database using config
+db = MySQLdb.connect(
+    use_unicode=True, cursorclass=DictCursor,
+    db=OLD_DB_NAME, read_default_file="~/.my.cnf")
 
 cur = db.cursor()
 
