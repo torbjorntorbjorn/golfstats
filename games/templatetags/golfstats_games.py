@@ -1,6 +1,8 @@
 from django import template
 from django.template import Variable
 
+from games.models import FinishedGamePlayer
+
 register = template.base.Library()
 
 
@@ -57,6 +59,19 @@ class GamePlayerScoreNode(template.Node):
         game = self.game.resolve(context)
         player = self.player.resolve(context)
         score = 0
+
+        # TODO: Should DNF state be handled here ?
+        # Check if we have FinishedGamePlayer and DNF,
+        # and return string "DNF"
+        try:
+            fgp = FinishedGamePlayer.objects.get(
+                player=player,
+                game=game)
+
+            if fgp.dnf:
+                return "DNF"
+        except FinishedGamePlayer.DoesNotExist:
+            pass
 
         for gamehole in game.gamehole_set.filter(player=player):
             score_hole = gamehole.throws - \
