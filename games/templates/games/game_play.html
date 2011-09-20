@@ -2,6 +2,7 @@
 {% load url from future %}
 {% load staticfiles %}
 {% load score_game_player_hole %}
+{% load golfstats_games %}
 
 {% block content %}
 <h1>Playing game {{ game.id }}</h1>
@@ -65,6 +66,7 @@
                     {% for player in game.players.all %}
                     {% get_gamehole player.id game.id coursehole.id gamehole %}
                         <td
+                            class="{% get_hole_score_css_class gamehole %}"
                             data-player_id="{{ player.id }}"
                             data-player_name="{{ player.name }}">
 

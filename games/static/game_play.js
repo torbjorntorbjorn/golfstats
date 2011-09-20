@@ -94,8 +94,12 @@ $(function() {
         var ch_id = el.parents("tr").data("coursehole_id");
         var par = el.parents("tr").data("coursehole_par");
 
+        var result = _throws - par;
+
         // Set the score
-        scores[player_id][ch_id] = _throws - par;
+        scores[player_id][ch_id] = result;
+
+        return result;
     }
 
     // Maintain score object, and possibly sum affected player
@@ -111,7 +115,20 @@ $(function() {
 
         // Hmf, 'throws' is a keyword
         var _throws = parseInt(el.val(), 10);
-        set_score(el, _throws);
+        var result = set_score(el, _throws);
+
+        var cell = el.parents("td");
+
+        if (result == 0) {
+            cell.addClass("par");
+            cell.removeClass("belowpar").removeClass("overpar");
+        } else if (result > 0) {
+            cell.addClass("overpar");
+            cell.removeClass("belowpar").removeClass("par");
+        } else if (result < 0) {
+            cell.addClass("belowpar");
+            cell.removeClass("overpar").removeClass("par");
+        }
 
         // Update result cell
         if (do_sum) {
