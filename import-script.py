@@ -8,8 +8,8 @@ from courses.models import Course, Arena, Hole, Tee, Basket, CourseHole
 from players.models import Player
 from games.models import Game, GameHole
 
-db = MySQLdb.connect(user='root',
-    db='golfstats_import_tmp', passwd='3H4vUDRac7e5WuXa', 
+db = MySQLdb.connect(user='golfstats_import',
+    db='golfstats_import_tmp', passwd='golfstats_import_tmp123',
     use_unicode=True, cursorclass=DictCursor)
 
 cur = db.cursor()
@@ -105,6 +105,7 @@ for course_row in cur.fetchall():
         game.creator = game_players[0]
         game.players = game_players
         game.start()
+        game.save()
 
         # Go through each players score
         cur.execute(
@@ -127,6 +128,8 @@ for course_row in cur.fetchall():
                 )
 
         game.finish()
+        game.save()
 
-        print 'Finished game on %s' % game.course
+        print 'Finished game %s (original ID: %s) on %s' % \
+            (game.id, game_row['id'], game.course)
 
