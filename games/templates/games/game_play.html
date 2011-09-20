@@ -67,6 +67,8 @@
                         <td
                             data-player_id="{{ player.id }}"
                             data-player_name="{{ player.name }}">
+
+                            {% ifequal game.state game.STATE_STARTED %}
                             <ul>
                                 <li>
                                     Throws: <input
@@ -78,8 +80,19 @@
                                     OB throws: <input
                                         type="number" maxlength="2" size="2" value="{{ gamehole.ob_throws }}" class="ob_throws"
                                         name="ob_throws-player:{{ player.id }}-game:{{ game.id }}-coursehole:{{ coursehole.id }}">
+
+
                                 </li>
                             <ul>
+                            {% else %}
+                            <p
+                                data-throws="{{ gamehole.throws }}"
+                                data-ob_throws="{{ gamehole.ob_throws }}">
+                                {{ gamehole.throws }}
+                                {% if gamehole.ob_throws %}
+                                    ({{ gamehole.ob_throws }})
+                                {% endif %}
+                            {% endifequal %}
                         </td>
                     {% endfor %}
                 </tr>

@@ -83,6 +83,16 @@ $(function() {
         result_cells[player_id].innerHTML = score;
     }
 
+    // Set a specfic score
+    function set_score(el, _throws) {
+        var player_id = el.parents("td").data("player_id");
+        var ch_id = el.parents("tr").data("coursehole_id");
+        var par = el.parents("tr").data("coursehole_par");
+
+        // Set the score
+        scores[player_id][ch_id] = _throws - par;
+    }
+
     // Maintain score object, and possibly sum affected player
     function score_change(el, do_sum) {
         var do_sum = do_sum || false;
@@ -96,16 +106,11 @@ $(function() {
 
         // Hmf, 'throws' is a keyword
         var _throws = parseInt(el.val(), 10);
-
-        var player_id = el.parents("td").data("player_id");
-        var ch_id = el.parents("tr").data("coursehole_id");
-        var par = el.parents("tr").data("coursehole_par");
-
-        // Set the score
-        scores[player_id][ch_id] = _throws - par;
+        set_score(el, _throws);
 
         // Update result cell
         if (do_sum) {
+            var player_id = el.parents("td").data("player_id");
             sum_player(player_id);
         }
     }
@@ -119,6 +124,17 @@ $(function() {
 
         // Initial scores
         score_change(el);
+    });
+
+    // If we are not in "started" state, there will be results
+    // in a p element in each table cell
+    scorecard.find("tbody td p").each(function(i, el) {
+        var el = $(el);
+        var _throws = el.data("throws");
+
+        if (_throws !== "") {
+            set_score(el, _throws);
+        }
     });
 
     // Run sum_player for all players
@@ -223,6 +239,11 @@ $(function() {
         var el = $(el);
         var el_throws = el.find("input.throws");
         var el_ob_throws = el.find("input.ob_throws");
+
+        // No input elements, our services are not needed
+        if (el_throws.length == 0) {
+            return;
+        }
 
         // Hide cell contents
         el.contents().css("display", "none");
