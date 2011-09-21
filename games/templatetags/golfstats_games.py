@@ -8,6 +8,90 @@ register = template.base.Library()
 
 
 @register.tag
+def player_games_won(parser, token):
+
+    try:
+        tag_name, player = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires one rgument" %
+            token.contents.split()[0])
+
+    return PlayerGamesWonNode(player)
+
+
+class PlayerGamesWonNode(template.Node):
+    def __init__(self, player):
+        self.player = Variable(player)
+
+    def render(self, context):
+        super(PlayerGamesWonNode, self).render(context)
+        player = self.player.resolve(context)
+
+        return player.finishedgameplayer_set.filter(
+            order=0).count()
+
+@register.tag
+def game_winner(parser, token):
+
+    try:
+        tag_name, game, context_name = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires two arguments" %
+            token.contents.split()[0])
+
+    return GameWinnerNode(game, context_name)
+
+
+class GameWinnerNode(template.Node):
+    def __init__(self, game, context_name):
+        self.game = Variable(game)
+        self.context_name = context_name
+
+    def render(self, context):
+        super(GameWinnerNode, self).render(context)
+        game = self.game.resolve(context)
+
+        try:
+            context[self.context_name] = \
+                game.finishedgameplayer_set.filter(
+                    order=0)[0]
+        except IndexError:
+            context[self.context_name] = ''
+
+        return ''
+
+
+@register.tag
+def player_finished_games(parser, token):
+
+    try:
+        tag_name, player, context_name = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires two arguments" %
+            token.contents.split()[0])
+
+    return PlayerFinishedGamesNode(player, context_name)
+
+
+class PlayerFinishedGamesNode(template.Node):
+    def __init__(self, player, context_name):
+        self.player = Variable(player)
+        self.context_name = context_name
+
+    def render(self, context):
+        super(PlayerFinishedGamesNode, self).render(context)
+        player = self.player.resolve(context)
+
+        context[self.context_name] = \
+            player.finishedgameplayer_set.order_by('-game__created')
+
+        return ''
+
+
+@register.tag
 def game_player_throws(parser, token):
 
     try:
