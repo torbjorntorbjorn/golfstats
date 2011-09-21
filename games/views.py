@@ -5,8 +5,6 @@ from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
 
 from games.models import Game, GameHole
-from courses.models import CourseHole
-from players.models import Player
 
 THROWS_PATTERN = "throws-player:\d+-game:\d+-coursehole:\d+$"
 THROWS_RE = re.compile("^" + THROWS_PATTERN)
@@ -20,13 +18,6 @@ def _split_pgh(pgh):
     parts = pgh.split("-")
 
     return [x.split(":")[1] for x in parts[1:]]
-
-
-# Returns a 3-tuple with realized objects
-def _get_pgh(p, g, ch):
-    return (Player.objects.get(id=p),
-        Game.objects.get(id=g),
-        CourseHole.objects.get(id=ch))
 
 
 def _parse_scores(kv):
@@ -94,19 +85,19 @@ def play(req, pk):
             # Iterate through pgh tuples and score dict
             for pgh, throws in scores.items():
                 # Realize objects from pgh
-                player, game, coursehole = _get_pgh(pgh[0], pgh[1], pgh[2])
+                player_id, game_id, coursehole_id = pgh[0], pgh[1], pgh[2]
 
                 # Create gamehole object
                 try:
                     gh = GameHole.objects.get(
-                        player=player,
-                        game=game,
-                        coursehole=coursehole)
+                        player__id=player_id,
+                        game__id=game_id,
+                        coursehole__id=coursehole_id)
                 except GameHole.DoesNotExist:
-                    gh = GameHole(
-                        player=player,
-                        game=game,
-                        coursehole=coursehole)
+                    gh = GameHole()
+                    gh.player_id = player_id
+                    gh.game_id = game_id
+                    gh.coursehole_id = coursehole_id
 
                 # Set throws if present
                 if "throws" in throws:
