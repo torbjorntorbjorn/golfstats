@@ -29,6 +29,45 @@ def _get_pgh(p, g, ch):
         CourseHole.objects.get(id=ch))
 
 
+def _parse_scores(kv):
+    scores = {}
+
+    for key, val in kv:
+        # Value has to be an integer
+        try:
+            score_val = int(val)
+        except ValueError:
+            # It wasn't, continue to next one
+            continue
+
+        # Throw registered
+        if THROWS_RE.match(key):
+            p, g, ch = _split_pgh(key)
+
+            score_key = "throws"
+            score_val = val
+
+        # OB throw registered
+        elif OB_THROWS_RE.match(key):
+            p, g, ch = _split_pgh(key)
+
+            score_key = "ob_throws"
+            score_val = val
+
+        # Not a valid score format
+        else:
+            continue
+
+        # Create throws dict if not present
+        if (p, g, ch) not in scores:
+            scores[(p, g, ch)] = {}
+
+        # Store throw or ob_throw
+        scores[(p, g, ch)][score_key] = score_val
+
+    return scores
+
+
 def play(req, pk):
     game = get_object_or_404(Game, id=pk)
 
@@ -50,40 +89,7 @@ def play(req, pk):
 
         elif "score" in req.POST:
             # Map between pgh tuple and throws dict
-            scores = {}
-
-            for key, val in req.POST.items():
-                # Value has to be an integer
-                try:
-                    score_val = int(val)
-                except ValueError:
-                    # It wasn't, continue to next one
-                    continue
-
-                # Throw registered
-                if THROWS_RE.match(key):
-                    p, g, ch = _split_pgh(key)
-
-                    score_key = "throws"
-                    score_val = val
-
-                # OB throw registered
-                elif OB_THROWS_RE.match(key):
-                    p, g, ch = _split_pgh(key)
-
-                    score_key = "ob_throws"
-                    score_val = val
-
-                # Not a valid score format
-                else:
-                    continue
-
-                # Create throws dict if not present
-                if (p, g, ch) not in scores:
-                    scores[(p, g, ch)] = {}
-
-                # Store throw or ob_throw
-                scores[(p, g, ch)][score_key] = score_val
+            scores = _parse_scores(req.POST.items())
 
             # Iterate through pgh tuples and score dict
             for pgh, throws in scores.items():
