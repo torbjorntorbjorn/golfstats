@@ -118,7 +118,7 @@ games = []
 
 
 # Create the players
-cur.execute('SELECT * FROM main_player')
+cur.execute('SELECT * FROM `main_player` ORDER BY `id` ASC')
 admin_player = Player.objects.create(name='Admin')
 
 for player_row in cur.fetchall():
@@ -127,7 +127,7 @@ for player_row in cur.fetchall():
 
 
 # Start with going through the different courses
-cur.execute('SELECT * FROM main_track')
+cur.execute('SELECT * FROM `main_track` ORDER BY `id` ASC')
 
 for course_row in cur.fetchall():
     # Now first we must create the Arena
@@ -139,8 +139,10 @@ for course_row in cur.fetchall():
         arena=arena, name=course_row['name'])
 
     # Now go through the holes
-    cur.execute('SELECT * FROM main_hole WHERE track_id=%i'
-        % course_row['id'])
+    hole_query = """SELECT * FROM `main_hole`
+        WHERE `track_id` = %s
+        ORDER BY `id` ASC"""
+    cur.execute(hole_query, (course_row["id"], ))
 
     holes = cur.fetchall()
     courseholes = {}
@@ -169,9 +171,12 @@ for course_row in cur.fetchall():
 
     # Okay, now we have arena with course, baskets, tees and holes
     # Lets try to create some games!
-    cur.execute(
-        'SELECT * FROM main_game WHERE track_id=%i and state=%i and id > 30'
-        % (course_row['id'], 2))
+    game_query = """SELECT * FROM `main_game`
+        WHERE `track_id` = %s
+        AND `state` = %s
+        AND `id`  > 30
+        ORDER BY `id` ASC"""
+    cur.execute(game_query, (course_row["id"], 2))
 
     for game_row in cur.fetchall():
 
@@ -184,9 +189,10 @@ for course_row in cur.fetchall():
 
         # Now find and add players to this game
         game_players = []
-        cur.execute(
-            'SELECT * FROM main_game_players WHERE game_id=%s'
-            % game_row['id'])
+        cur.execute("""SELECT * FROM `main_game_players`
+            WHERE `game_id` = %s
+            ORDER BY `id` ASC""",
+            (game_row['id'], ))
 
         for game_player in cur.fetchall():
             game_players.append(players[game_player['player_id']])
@@ -197,14 +203,19 @@ for course_row in cur.fetchall():
         game.save()
 
         # Go through each players score
-        cur.execute(
-            'SELECT * FROM main_game_players WHERE game_id=%s'
-            % game_row['id'])
+        cur.execute("""SELECT * FROM `main_game_players`
+            WHERE `game_id` = %s
+            ORDER BY `id` ASC""",
+            (game_row['id'], ))
 
         for game_player in cur.fetchall():
-            cur.execute(
-                'SELECT * FROM main_score WHERE game_id=%s and player_id=%s'
-                % (game_row['id'], game_player['player_id']))
+            score_query = """SELECT * FROM `main_score`
+                WHERE `game_id` = %s
+                AND `player_id` = %s
+                ORDER BY `id` ASC"""
+
+            cur.execute(score_query,
+                (game_row["id"], game_player["player_id"]))
 
             for score_row in cur.fetchall():
                 # Lets create GameHole
