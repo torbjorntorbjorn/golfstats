@@ -185,6 +185,7 @@ for course_row in cur.fetchall():
             course=course,
             creator=admin_player,
             state=Game.STATE_CREATED,
+            created=game_row['started'],
         )
 
         # Now find and add players to this game
@@ -228,6 +229,12 @@ for course_row in cur.fetchall():
                 )
 
         game.finish()
+
+        # start and finish methods have saved datetime.now() as
+        # timestamps, we need to update from imported game
+        game.started = game_row['started']
+        game.finished = game_row['finished']
+
         game.save()
 
         print 'Finished game %s (original ID: %s) on %s' % \
