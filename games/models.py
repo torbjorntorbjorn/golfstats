@@ -286,7 +286,7 @@ class GameHole(models.Model):
 
     @property
     def score(self):
-        return self.coursehole.hole.par - self.throws
+        return self.throws - self.coursehole.hole.par
 
     def clean(self):
         # Ensure that our course is the same course as

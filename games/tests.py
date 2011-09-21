@@ -126,6 +126,33 @@ class GamesTest(TestCase):
             self.assertEqual(our_score["throws"], fgp.throws)
             self.assertEqual(our_score["ob_throws"], fgp.ob_throws)
 
+    def test_finished_game_player_score(self):
+        # Make, start and play game
+        game = make_game()
+
+        game.start()
+        game.save()
+
+        play_game(game)
+
+        # play_game leaves everything at par,
+        # so we adjust one gamehole to +1
+        choosen_gamehole = game.gamehole_set.all()[0]
+        choosen_player = choosen_gamehole.player
+
+        choosen_gamehole.throws = choosen_gamehole.coursehole.hole.par + 1
+        choosen_gamehole.save()
+
+        # Finish, trigger creation of finished games
+        game.finish()
+        game.save()
+
+        # Get the FinishedGamePlayer for choosen_player
+        fgp = game.finishedgame.players.get(player__id=choosen_player.id)
+
+        # Assert that we have scored a total of 1
+        self.assertEqual(fgp.score, 1)
+
     def test_game_start(self):
         game = make_game()
 
