@@ -6,7 +6,7 @@
 <thead>
     <tr>
         <th class="player">Player</th>
-        {% for hole in game.course.coursehole_set.all %}
+        {% for hole in game.course.courseholes %}
         <th class="hole">{{ hole.order }}</th>
         {% endfor %}
         <th class="throws">Throws</th>
@@ -19,7 +19,7 @@
     <td>
         <a href="{% url "golfstats-players-players-detail" player.id %}">{{ player.name }}</a>
     </td>
-    {% for hole in game.course.coursehole_set.all %}
+    {% for hole in game.course.courseholes %}
     {% get_gamehole player.id game.id hole.id gamehole %}
     <td class="hole {% if gamehole %}{% get_hole_score_css_class gamehole %}{% endif %}">
         {% if gamehole %}

@@ -54,7 +54,7 @@ class Course(models.Model):
 
     def get_course_par(self):
         throws = 0
-        for coursehole in self.coursehole_set.all():
+        for coursehole in self.courseholes:
             throws += coursehole.hole.par
 
         return throws
