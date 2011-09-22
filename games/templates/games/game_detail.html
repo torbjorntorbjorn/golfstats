@@ -14,6 +14,9 @@
     <dt>Course</dt>
     <dd><a href="{% url "golfstats-courses-course-detail" game.course.id %}">{{ game.course }}</a></dd>
 
+    <dt>Created</dt>
+    <dd>{{ game.created|date:"d.m.Y" }}</dd>
+
     <dt>State</dt>
     <dd>{{ game.get_state_display }}</dd>
 
@@ -42,6 +45,16 @@
             <li>There are no players in this game</li>
         {% endfor %}
         </ul>
+    </dd>
+
+    <dt>Winner</dt>
+    <dd>
+        {% game_winner game winner %}
+        {% if winner %}
+            <a href="{% url "golfstats-players-players-detail" winner.player.id %}">{{ winner.player }}</a> ({{ winner.score }}, {{ winner.throws }} throws)
+        {% else %}
+            Nobody
+        {% endif %}
     </dd>
 
 </dl>
