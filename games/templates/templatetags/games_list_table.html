@@ -14,7 +14,7 @@
         {% for game in games %}
             <tr>
                 <td><a href="{% url "golfstats-games-games-detail" game.id %}">{{ game.id }}</a></td>
-                <td>N/A</td>
+                <td>{{ game.created|date:"d.m.Y" }}</td>
                 <td><a href="{% url "golfstats-courses-course-detail" game.course.id %}">{{ game.course }}</a></td>
                 <td>{{ game.get_state_display }}</td>
                 <td>
