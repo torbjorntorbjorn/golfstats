@@ -58,7 +58,7 @@
         </thead>
 
         <tbody>
-            {% for coursehole in game.course.coursehole_set.all %}
+            {% for coursehole in game.course.courseholes %}
                 <tr data-coursehole_id="{{ coursehole.id }}"
                     data-coursehole_par="{{ coursehole.hole.par }}">
                     <th>{{ coursehole.name }}</th>

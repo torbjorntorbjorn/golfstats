@@ -41,7 +41,7 @@
     </thead>
 
     <tbody>
-        {% for coursehole in course.coursehole_set.all %}
+        {% for coursehole in course.courseholes %}
             <tr>
                 <td><a
                     href="{% url "golfstats-courses-coursehole-detail" coursehole.id %}">

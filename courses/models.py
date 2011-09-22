@@ -59,6 +59,10 @@ class Course(models.Model):
 
         return throws
 
+    @property
+    def courseholes(self):
+        return self.coursehole_set.all().order_by("order")
+
 
 class CourseHole(models.Model):
     course = models.ForeignKey(Course)
