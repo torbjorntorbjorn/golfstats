@@ -6,6 +6,14 @@
 <h1>Player {{ player.name }}</h1>
 <p><a href="{% url "golfstats-players-players-edit" player.id %}">Edit {{ player.name }}</a></p>
 
+<dl class="model-details">
+    <dt>Games played</dt>
+    <dd>{{ player.finishedgameplayer_set.count }}</dd>
+
+    <dt>Games won</dt>
+    <dd>{% player_games_won player %}</dd>
+</dl>
+
 <h2>Finished games</h2>
 <table class="finished-games">
     <thead>
@@ -19,14 +27,16 @@
         </tr>
     </thead>
     <tbody>
-        {% for finished_game in player.finishedgameplayer_set.all %}
+        {% player_finished_games player finishedgames %}
+
+        {% for finished_game in finishedgames %}
         <tr>
             <td><a href="{% url "golfstats-games-games-detail" finished_game.game.id %}">{{ finished_game.game.id }}</a></td>
-            <td>N/A</td>
+            <td>{{ finished_game.game.created|date:"d.m.Y" }}</td>
             <td><a href="{% url "golfstats-courses-course-detail" finished_game.game.course.id %}">{{ finished_game.game.course }}</a></td>
             <td>{{ finished_game.throws }}</td>
-            <td>{{ finished_game.score }}</td>
-            <td>{{ finished_game.order }}</td>
+            <td>{{ finished_game.score_display }}</td>
+            <td>{{ finished_game.order_display }}</td>
         </tr>
         {% endfor %}
     </tbody>
