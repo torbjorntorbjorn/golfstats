@@ -112,7 +112,7 @@ Game.objects.all().delete()
 CourseHole.objects.all().delete()
 GameHole.objects.all().delete()
 
-courses = []
+courses = {}
 players = {}
 games = []
 
@@ -163,79 +163,81 @@ for course_row in cur.fetchall():
 
         courseholes.update({hole_row['id']: coursehole})
 
-    courses.append({
-        'id': course_row['id'],
-        'course': course,
-        'holes': courseholes,
-    })
+    courses[course_row["id"]] = {
+        "course": course,
+        "courseholes": courseholes,
+    }
 
-    # Okay, now we have arena with course, baskets, tees and holes
-    # Lets try to create some games!
-    game_query = """SELECT * FROM `main_game`
-        WHERE `track_id` = %s
-        AND `state` = %s
-        AND `id`  > 30
-        ORDER BY `id` ASC"""
-    cur.execute(game_query, (course_row["id"], 2))
+# Okay, now we have arena with course, baskets, tees and holes
+# Lets try to create some games!
+game_query = """SELECT * FROM `main_game`
+    WHERE `state` = %s
+    AND `id`  > 30
+    ORDER BY `id` ASC"""
+cur.execute(game_query, (2, ))
 
-    for game_row in cur.fetchall():
+for game_row in cur.fetchall():
+    coursedata = courses[game_row["track_id"]]
 
-        # Time to prepare a new game
-        game = Game.objects.create(
-            course=course,
-            creator=admin_player,
-            state=Game.STATE_CREATED,
-            created=game_row['started'],
-        )
+    course = coursedata["course"]
+    courseholes = coursedata["courseholes"]
 
-        # Now find and add players to this game
-        game_players = []
-        cur.execute("""SELECT * FROM `main_game_players`
+    # Time to prepare a new game
+    game = Game.objects.create(
+        course=course,
+        creator=admin_player,
+        state=Game.STATE_CREATED,
+        created=game_row['started'],
+    )
+
+    # Now find and add players to this game
+    game_players = []
+    cur.execute("""SELECT * FROM `main_game_players`
+        WHERE `game_id` = %s
+        ORDER BY `id` ASC""",
+        (game_row['id'], ))
+
+    for game_player in cur.fetchall():
+        game_players.append(players[game_player['player_id']])
+
+    game.creator = game_players[0]
+    game.players = game_players
+    game.start()
+    game.save()
+
+    # Go through each players score
+    cur.execute("""SELECT * FROM `main_game_players`
+        WHERE `game_id` = %s
+        ORDER BY `id` ASC""",
+        (game_row['id'], ))
+
+    for game_player in cur.fetchall():
+        score_query = """SELECT * FROM `main_score`
             WHERE `game_id` = %s
-            ORDER BY `id` ASC""",
-            (game_row['id'], ))
+            AND `player_id` = %s
+            ORDER BY `id` ASC"""
 
-        for game_player in cur.fetchall():
-            game_players.append(players[game_player['player_id']])
+        cur.execute(score_query,
+            (game_row["id"], game_player["player_id"]))
 
-        game.creator = game_players[0]
-        game.players = game_players
-        game.start()
-        game.save()
+        for score_row in cur.fetchall():
+            # Lets create GameHole
+            GameHole.objects.create(
+                game=game,
+                player=players[game_player['player_id']],
+                throws=score_row['throws'],
+                ob_throws=score_row['ob_throws'],
+                coursehole=courseholes[score_row['hole_id']],
+            )
 
-        # Go through each players score
-        cur.execute("""SELECT * FROM `main_game_players`
-            WHERE `game_id` = %s
-            ORDER BY `id` ASC""",
-            (game_row['id'], ))
+    game.finish()
 
-        for game_player in cur.fetchall():
-            score_query = """SELECT * FROM `main_score`
-                WHERE `game_id` = %s
-                AND `player_id` = %s
-                ORDER BY `id` ASC"""
+    # start and finish methods have saved datetime.now() as
+    # timestamps, we need to update from imported game
+    game.started = game_row['started']
+    game.finished = game_row['finished']
 
-            cur.execute(score_query,
-                (game_row["id"], game_player["player_id"]))
+    game.save()
 
-            for score_row in cur.fetchall():
-                # Lets create GameHole
-                GameHole.objects.create(
-                    game=game,
-                    player=players[game_player['player_id']],
-                    throws=score_row['throws'],
-                    ob_throws=score_row['ob_throws'],
-                    coursehole=courseholes[score_row['hole_id']],
-                )
-
-        game.finish()
-
-        # start and finish methods have saved datetime.now() as
-        # timestamps, we need to update from imported game
-        game.started = game_row['started']
-        game.finished = game_row['finished']
-
-        game.save()
-
-        print 'Finished game %s (original ID: %s) on %s' % \
-            (game.id, game_row['id'], game.course)
+    print 'Finished game %s (original ID: %s) on %s' % \
+        (game.id, game_row['id'], game.course)
