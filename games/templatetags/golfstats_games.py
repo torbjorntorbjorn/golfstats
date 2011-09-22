@@ -31,6 +31,7 @@ class PlayerGamesWonNode(template.Node):
         return player.finishedgameplayer_set.filter(
             order=0).count()
 
+
 @register.tag
 def game_winner(parser, token):
 
