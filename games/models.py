@@ -2,6 +2,8 @@ from django.db import models
 
 from django.core.exceptions import ValidationError
 
+from datetime import datetime
+
 from courses.models import Course, CourseHole
 from players.models import Player
 from games.managers import GameManager
@@ -27,11 +29,14 @@ class Game(models.Model):
         choices=STATE_CHOICES, default=STATE_CREATED,
     )
     verified = models.BooleanField(default=False)
+    created = models.DateTimeField()
+    started = models.DateTimeField(blank=True, null=True)
+    finished = models.DateTimeField(blank=True, null=True)
 
     objects = GameManager()
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('-created',)
 
     def __unicode__(self):
         return "Game %s" % (self.id)
@@ -79,6 +84,7 @@ class Game(models.Model):
         self._is_creator_in_players()
 
         self.state = self.STATE_STARTED
+        self.started = datetime.now()
 
     def finish(self):
         if self.state is not self.STATE_STARTED:
@@ -107,6 +113,7 @@ class Game(models.Model):
         self._create_finished_games()
 
         self.state = self.STATE_FINISHED
+        self.finished = datetime.now()
 
     def abort(self):
         if self.state is not self.STATE_STARTED:
@@ -265,6 +272,15 @@ class FinishedGamePlayer(models.Model):
     class Meta:
         unique_together = ("player", "game", "order")
         ordering = ('order',)
+
+    def order_display(self):
+        return self.order + 1
+
+    def score_display(self):
+        if self.score > 0:
+            return '+%i' % self.score
+
+        return self.score
 
 
 # This class is a summary of game and gameholes
