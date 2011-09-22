@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.test import TestCase, Client
 
 from django.core.exceptions import ValidationError
@@ -18,6 +20,7 @@ def make_game():
         # TODO: This doesn't look greait
         course=arena.course_set.all()[0],
         creator=players[0],
+        created=datetime.now(),
     )
     game.players = players
 
@@ -54,6 +57,7 @@ class GamesTest(TestCase):
         game = Game(
             course=course,
             creator=player,
+            created=datetime.now(),
         )
         game.save()
         game.players = [player]
@@ -292,6 +296,7 @@ class GamesTest(TestCase):
             # TODO: This doesn't look great
             course=arena.course_set.all()[0],
             creator=extra_player,
+            created=datetime.now(),
         )
         game.players = players
 
@@ -393,6 +398,7 @@ class GamesFrontendTest(TestCase):
             g = Game.objects.create(
                 course=game.course,
                 creator=game.players.all()[0],
+                created=datetime.now(),
             )
             g.player = game.players
             games.append(g)
@@ -425,6 +431,7 @@ class GamesFrontendTest(TestCase):
             "players": [p.id for p in players],
             "state": Game.STATE_CREATED,
             "creator": players[0].id,
+            "created": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         })
 
         self.assertEqual(r.status_code, 302)
