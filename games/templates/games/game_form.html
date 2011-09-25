@@ -13,3 +13,46 @@
     <button type="submit">Save</button>
 </form>
 {% endblock %}
+
+{% block end_of_body %}
+<script>
+$(function() {
+    // Helper for quickly starting game
+    $("<button></button>", {
+        text: "debug - fill form",
+        click: function(e) {
+            // Don't submit
+            e.preventDefault();
+
+            // Format date string
+            var d = new Date();
+
+            var dp = [
+                d.getFullYear(),
+                d.getMonth(),
+                d.getDate()
+            ].join("-");
+
+            var tp = [
+                d.getHours(),
+                d.getMinutes()
+            ].join(":");
+
+            // Set date string
+            $("#id_created").val(dp + " " + tp);
+
+            // Use first course
+            $("#id_course option").attr("selected", null);
+            $("#id_course option:nth-child(2)").attr("selected", true);
+
+            // Use first creator
+            $("#id_creator option").attr("selected", null);
+            $("#id_creator option:nth-child(2)").attr("selected", true);
+
+            // Use first 4 players
+            $("#id_players option:lt(4)").attr("selected", true);
+        }
+    }).appendTo("form");
+});
+</script>
+{% endblock %}
