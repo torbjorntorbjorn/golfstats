@@ -9,6 +9,8 @@ from django.views.generic import (ListView,
 from players.models import Player
 from players.views import stats
 
+from players.forms import PlayerForm
+
 urlpatterns = patterns('',
     url(r'^players/$', ListView.as_view(
         model=Player,
@@ -17,6 +19,7 @@ urlpatterns = patterns('',
 
     url(r'^players/create/$', CreateView.as_view(
         model=Player,
+        form_class=PlayerForm,
         success_url=reverse_lazy('golfstats-players-players'),
     ), name="golfstats-players-players-create"),
 
@@ -30,6 +33,7 @@ urlpatterns = patterns('',
 
     url(r'^players/(?P<pk>\d+)/edit/', UpdateView.as_view(
         model=Player,
+        form_class=PlayerForm,
         context_object_name="player",
         success_url=reverse_lazy('golfstats-players-players'),
     ), name="golfstats-players-players-edit"),
