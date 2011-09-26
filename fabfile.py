@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 from fabric.api import local
 
 DB_NAME = "golfstats"
