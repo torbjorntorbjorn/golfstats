@@ -536,12 +536,12 @@ class GamesFrontendTest(TestCase):
                 game__id=game_id,
                 coursehole__id=coursehole_id)
 
-            attr = key.split("-")[0]
+            attr_type = key.split("-")[0]
 
-            if attr == "throws":
+            if attr_type == "throws":
                 self.assertEqual(gh.throws, val)
 
-            if attr == "ob_throws":
+            if attr_type == "ob_throws":
                 self.assertEqual(gh.ob_throws, val)
 
         # Assert we have correct number of GameHoles
