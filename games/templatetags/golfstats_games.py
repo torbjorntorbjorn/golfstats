@@ -39,8 +39,6 @@ class CourseBestRoundNode(template.Node):
         return ''
 
 
-
-
 @register.tag
 def player_games_won(parser, token):
 

@@ -1,7 +1,5 @@
 from django import template
 from django.template import Variable
-from django.template.base import VariableDoesNotExist
-from django.core import serializers
 import json
 
 from courses.models import Course
@@ -40,15 +38,14 @@ class PlayerCourseGraphNode(template.Node):
 
         results = []
 
-        for game in player.finishedgameplayer_set.filter(game__course=course).exclude(dnf=True).order_by('game__started'):
+        for game in player.finishedgameplayer_set.filter(
+            game__course=course).exclude(dnf=True).order_by('game__started'):
             results.append({
                 'score': game.score,
                 'game': 'Game %i' % (game.game.id),
             })
 
-        data.update({
-            'results': results
-        })
+        data['results'] = results
 
         return json.dumps(data)
 
