@@ -1,3 +1,4 @@
+import simplejson
 from django.test import TestCase, Client
 from nose.plugins.attrib import attr  # NOQA
 
@@ -134,3 +135,48 @@ class PlayerFrontendTest(TestCase):
         # Check that we can't actually load the deleted instance
         self.assertRaises(player.DoesNotExist,
             Player.objects.get, id=player.id)
+
+
+class PlayerApiTest(TestCase):
+    def test_get(self):
+        #  Grab an empty response
+        c = Client()
+        r = c.get("/api/players/")
+
+        # Check response code is reasonable
+        self.assertEqual(r.status_code, 200)
+
+        # Should be valid JSON
+        res = simplejson.loads(r.content)
+
+        # No players yet, should be empty
+        self.assertEqual(res, [])
+
+        # Create some test players, get and parse
+        players = make_players(5)
+
+        c = Client()
+        r = c.get("/api/players/")
+
+        resp = simplejson.loads(r.content)
+
+        # We got all our players back ?
+        self.assertEqual(len(players), len(resp))
+
+        # Received names
+        resp_names = [x["name"] for x in resp]
+
+        for player in players:
+            self.assertIn(player.name, resp_names)
+
+        # Check a single player
+        player = players[0]
+
+        c = Client()
+        r = c.get("/api/players/%s/" % (player.id))
+
+        self.assertEqual(r.status_code, 200)
+
+        resp = simplejson.loads(r.content)
+
+        self.assertEqual(resp["name"], player.name)
