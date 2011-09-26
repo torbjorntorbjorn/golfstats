@@ -432,7 +432,6 @@ class GamesFrontendTest(TestCase):
             "players": [p.id for p in players],
             "state": Game.STATE_CREATED,
             "creator": players[0].id,
-            "created": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         })
 
         self.assertEqual(r.status_code, 302)

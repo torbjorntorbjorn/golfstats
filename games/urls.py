@@ -8,6 +8,8 @@ from django.views.generic import (ListView,
 from games.models import Game
 from games.views import play
 
+from games.forms import GameForm
+
 urlpatterns = patterns('',
     url(r'^games/$', ListView.as_view(
         model=Game,
@@ -16,6 +18,7 @@ urlpatterns = patterns('',
 
     url(r'^games/create/$', CreateView.as_view(
         model=Game,
+        form_class=GameForm,
         success_url=reverse_lazy('golfstats-games-games'),
     ), name="golfstats-games-games-create"),
 
