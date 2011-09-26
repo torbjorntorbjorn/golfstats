@@ -1,4 +1,5 @@
 import simplejson
+
 from django.test import TestCase, Client
 from nose.plugins.attrib import attr  # NOQA
 
@@ -180,3 +181,21 @@ class PlayerApiTest(TestCase):
         resp = simplejson.loads(r.content)
 
         self.assertEqual(resp["name"], player.name)
+
+    def test_post(self):
+        # Create request structure and payload
+        req_data = {
+            "name": "api test player",
+        }
+        req_payload = simplejson.dumps(req_data)
+
+        c = Client()
+        r = c.post("/api/players/", req_payload,
+            content_type="application/json")
+
+        # Assert 201 CREATED was returned
+        self.assertEqual(r.status_code, 201)
+
+        # Assert we can grab crated player
+        p = Player.objects.get(name=req_data["name"])
+        self.assertNotEqual(p.id, None)
