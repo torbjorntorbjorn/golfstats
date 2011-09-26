@@ -18,17 +18,17 @@
     <dt>Par</dt>
     <dd>{{ course.get_course_par }}</dd>
 
-    <dt>Best round</dt>
+    <dt>Best game</dt>
     <dd>
-        {% course_best_round course best_round %}
-        {% if best_round %}
-            {{ best_round.throws }}
+        {% course_best_game course best_game %}
+        {% if best_game %}
+            {{ best_game.throws }}
             (by <a
-                href="{% url "golfstats-players-players-detail" best_round.player.id %}">
-                    {{ best_round.player }}
+                href="{% url "golfstats-players-players-detail" best_game.player.id %}">
+                    {{ best_game.player }}
             </a> in Game <a
-                href="{% url "golfstats-games-games-detail" best_round.game.id %}">
-                    {{ best_round.game.id }}
+                href="{% url "golfstats-games-games-detail" best_game.game.id %}">
+                    {{ best_game.game.id }}
             </a>)
         {% else %}
             N/A

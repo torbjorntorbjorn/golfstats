@@ -8,7 +8,7 @@ register = template.base.Library()
 
 
 @register.tag
-def course_best_round(parser, token):
+def course_best_game(parser, token):
 
     try:
         tag_name, course, context_name = token.split_contents()
@@ -17,16 +17,16 @@ def course_best_round(parser, token):
             "%r tag requires two arguments" %
             token.contents.split()[0])
 
-    return CourseBestRoundNode(course, context_name)
+    return CourseBestGameNode(course, context_name)
 
 
-class CourseBestRoundNode(template.Node):
+class CourseBestGameNode(template.Node):
     def __init__(self, course, context_name):
         self.course = Variable(course)
         self.context_name = context_name
 
     def render(self, context):
-        super(CourseBestRoundNode, self).render(context)
+        super(CourseBestGameNode, self).render(context)
         course = self.course.resolve(context)
 
         try:
