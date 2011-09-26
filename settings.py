@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'courses',
     'players',
     'games',
+    'api',
 )
 
 # A sample logging configuration. The only tangible logging
