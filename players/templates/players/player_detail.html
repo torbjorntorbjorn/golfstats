@@ -5,8 +5,21 @@
 {% block content %}
 <h1>Player {{ player.name }}</h1>
 <p><a href="{% url "golfstats-players-players-edit" player.id %}">Edit {{ player.name }}</a></p>
+<p><a href="{% url "golfstats-players-players-stats" player.id %}">Player stats</a></p>
 
 <dl class="model-details">
+    <dt>Created</dt>
+    <dd>{{ player.created|date:"d.m.Y" }}</dd>
+
+    <dt>PDGA number</dt>
+    <dd>
+        {% if player.pdga_number %}
+            {{ player.pdga_number }}
+        {% else %}
+            N/A
+        {% endif %}
+    </dd>
+
     <dt>Games played</dt>
     <dd>{{ player.finishedgameplayer_set.count }}</dd>
 
