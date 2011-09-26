@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.test import TestCase, Client
+from nose.plugins.attrib import attr  # NOQA
 
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
