@@ -1,3 +1,4 @@
+import simplejson
 from datetime import datetime
 
 from django.test import TestCase, Client
@@ -24,6 +25,18 @@ def make_game():
         created=datetime.now(),
     )
     game.players = players
+
+    return game
+
+
+def make_finished_game():
+    game = make_game()
+    game.start()
+    game.save()
+
+    play_game(game)
+    game.finish()
+    game.save()
 
     return game
 
@@ -558,4 +571,122 @@ class GamesFrontendTest(TestCase):
         game = Game.objects.get(id=game.id)
 
         # Check that game has finished
+        self.assertEqual(game.state, game.STATE_FINISHED)
+
+
+class GamesApiTest(TestCase):
+    def test_get_game(self):
+        #  Grab an empty response
+        c = Client()
+        r = c.get("/api/games/")
+
+        # Check response code is reasonable
+        self.assertEqual(r.status_code, 200)
+
+        # Should be valid JSON
+        res = simplejson.loads(r.content)
+
+        # No players yet, should be empty
+        self.assertEqual(res, [])
+
+        # Create two games
+        game1 = make_finished_game()
+        game2 = make_finished_game()
+
+        # Get list of games
+        c = Client()
+        r = c.get("/api/games/")
+
+        self.assertEqual(r.status_code, 200)
+
+        resp = simplejson.loads(r.content)
+
+        # Both games in JSON ?
+        self.assertEqual(len(resp), 2)
+
+        # Get game ids from JSON response
+        resp_ids = [x["id"] for x in resp]
+
+        # Check that both of our games are in there
+        self.assertIn(game1.id, resp_ids)
+        self.assertIn(game2.id, resp_ids)
+
+        # Get single game
+        c = Client()
+        r = c.get("/api/games/%s/" % (game1.id))
+
+        self.assertEqual(r.status_code, 200)
+
+        resp = simplejson.loads(r.content)
+
+        # Check that fields hold proper values
+        self.assertEqual(game1.id, resp["id"])
+        self.assertEqual(game1.state, resp["state"])
+        self.assertEqual(game1.verified, resp["verified"])
+
+    def test_get_gameholes(self):
+        # Create a finished game
+        game = make_finished_game()
+
+        # Grab gameholes JSON
+        c = Client()
+        r = c.get("/api/games/%s/gameholes/" % (game.id))
+
+        self.assertEqual(r.status_code, 200)
+
+        resp = simplejson.loads(r.content)
+
+        # We have the same amount of gameholes in JSON and db ?
+        self.assertEqual(len(resp), len(game.gamehole_set.all()))
+
+        # Check that we can get all our gameholes from JSON
+        for resp_gh in resp:
+            gh = game.gamehole_set.get(
+                player__id=resp_gh["player_id"],
+                coursehole__id=resp_gh["coursehole_id"],
+                throws=resp_gh["throws"],
+                ob_throws=resp_gh["ob_throws"],
+            )
+
+            self.assertNotEqual(gh.id, None)
+
+    def test_put_gameholes(self):
+        # Create and start game
+        game = make_game()
+        game.start()
+        game.save()
+
+        # Prepare JSON structure, everyone will play par
+        gamehole_data = []
+        for ch in game.course.coursehole_set.all():
+            for player in game.players.all():
+                gamehole_data.append({
+                    "player_id": player.id,
+                    "coursehole_id": ch.id,
+                    "throws": ch.hole.par,
+                    "ob_throws": 0,
+                })
+
+        gamehole_payload = simplejson.dumps(gamehole_data)
+
+        # Check that we have zero gameholes
+        self.assertEqual(game.gamehole_set.all().count(), 0)
+
+        # PUT in order to update gameholes
+        c = Client()
+        r = c.put("/api/games/%s/gameholes/" % (game.id),
+            gamehole_payload, content_type="application/json")
+
+        # Response looks good ?
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, "OK")
+
+        # Check that we have created our gameholes
+        self.assertEqual(game.gamehole_set.all().count(), len(gamehole_data))
+
+        # Game should be able to finish
+        game.finish()
+        game.save()
+
+        # Check that game is finished
         self.assertEqual(game.state, game.STATE_FINISHED)
