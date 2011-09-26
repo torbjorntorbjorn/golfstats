@@ -28,6 +28,13 @@ def test():
         flake8()
 
 
+def smalltest():
+    args = _get_args()
+    args.append("--attr=smalltest")
+
+    local(" ".join(args), False)
+
+
 def coverage():
     args = _get_args() + [
         '--with-coverage',
