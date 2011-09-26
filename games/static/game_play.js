@@ -142,11 +142,59 @@ $(function() {
         }
     }
 
+    // Save scores using xhr
+    function xhr_save_score() {
+        var saveable_scores = [];
+        var game_id = scorecard.data("game_id");
+
+        scorecard.find("tbody td").each(function(i, el) {
+            var el = $(el);
+
+            // Grab values for this cell
+            var player_id = el.data("player_id");
+            var coursehole_id = el.parents("tr").data("coursehole_id");
+            var _throws = el.find("input.throws").val();
+            var _ob_throws = el.find("input.ob_throws").val();
+
+            // Create JSON gamehole structure
+            saveable_scores.push({
+                "player_id": player_id,
+                "coursehole_id": coursehole_id,
+                "throws": _throws,
+                "ob_throws": _ob_throws
+            });
+        });
+
+        // PUT scores, update gameholes
+        $.ajax("/api/games/" + game_id + "/gameholes/", {
+            cache: false,
+            contentType: "application/json",
+            type: "PUT",
+            data: JSON.stringify(saveable_scores) // TODO: Should polyfill
+        });
+    }
+
+    // Throttle and time xhr save
+    var _trigger_xhr_save_score_id = null; // settimeout id
+
+    function trigger_xhr_save_score() {
+        // Clear timeout if timeout in flight
+        if (_trigger_xhr_save_score_id !== null) {
+            clearTimeout(_trigger_xhr_save_score_id);
+        }
+
+        // Set up timer
+        _trigger_xhr_save_score_id = setTimeout(function() {
+            xhr_save_score();
+        }, 5*1000);
+    }
+
     // Init score object and capture change event
     scorecard.find("tbody input.throws").each(function(i, el) {
         // Connect event handlers
         $(el).bind("change keyup click", function(e) {
             score_change(e.currentTarget, true);
+            trigger_xhr_save_score();
         });
 
         // Initial scores
