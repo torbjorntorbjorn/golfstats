@@ -51,7 +51,7 @@ class Game(models.Model):
             # TODO: We shouldn't loop twice here
             for player in self.players.all():
                 # Does this player trust the creator ?
-                if not player.trusts(self.creator):
+                if not player.does_trust(self.creator):
                     # This player does not trust the creator,
                     # so we give up here
                     return

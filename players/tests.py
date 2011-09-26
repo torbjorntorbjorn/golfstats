@@ -5,7 +5,7 @@ from nose.plugins.attrib import attr  # NOQA
 
 from django.contrib.auth.models import User
 
-from players.models import Player, Trust
+from players.models import Player
 
 
 def make_players(count=1):
@@ -51,15 +51,15 @@ class PlayerTest(TestCase):
             player.save()
 
         p1 = players[0]
+        p2 = players[1]
+
+        # Check that they don't trust each other before
+        self.assertEqual(p1.does_trust(p2), False)
 
         # Establish trust from p1 to p2
-        p2 = players[1]
-        t1 = Trust.objects.create(
-            user=p1.user,
-        )
-        t1.trusts.add(p2.user)
+        p1.add_trust(p2)
 
-        self.assertEqual(p1.trusts(p2), True)
+        self.assertEqual(p1.does_trust(p2), True)
 
 
 class PlayerFrontendTest(TestCase):
@@ -105,7 +105,7 @@ class PlayerFrontendTest(TestCase):
         c = Client()
         r = c.get("/players/%s/edit/" % (player.id))
 
-        self.assertContains(r, player.name, count=1)
+        self.assertContains(r, player.name, count=2)
 
         c = Client()
         r = c.post("/players/%s/edit/" % (player.id), {

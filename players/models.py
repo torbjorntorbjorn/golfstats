@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 class Player(models.Model):
     name = models.CharField(max_length=255)
     user = models.OneToOneField(User, null=True, blank=True)
+    trusts = models.ManyToManyField("Player", null=True, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -17,7 +18,7 @@ class Player(models.Model):
         except IndexError:
             pass
 
-    def trusts(self, player):
+    def does_trust(self, player):
         # Player with no self.user trusts everybody
         if not self.user:
             return True
@@ -26,20 +27,12 @@ class Player(models.Model):
         if self.id == player.id:
             return True
 
-        # Both players must have users
-        if not self.user or not player.user:
-            return False
-
-        # Our player must have a trust object
-        if not self.user.trust:
-            return False
-
-        # Can we get the other players user from the
-        # users we trust ?
+        # Try to get the trust relation,
+        # or return False if it's not there
         try:
-            self.user.trust.trusts.get(id=player.user.id)
+            self.trusts.get(id=player.id)
             return True
-        except User.DoesNotExist:
+        except Player.DoesNotExist:
             return False
 
     def add_trust(self, player):
@@ -51,14 +44,5 @@ class Player(models.Model):
         if self.user.id == player.user.id:
             return
 
-        # Grab our trust object
-        trust, created = Trust.objects.get_or_create(user=self.user)
-
         # Trust new user
-        trust.trusts.add(player.user)
-
-
-# Represents one user trusting other users
-class Trust(models.Model):
-    user = models.OneToOneField(User)
-    trusts = models.ManyToManyField(User, related_name="trusted_by")
+        self.trusts.add(player)
