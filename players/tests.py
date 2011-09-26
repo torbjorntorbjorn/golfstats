@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from nose.plugins.attrib import attr  # NOQA
 
 from django.contrib.auth.models import User
 
