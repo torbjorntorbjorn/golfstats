@@ -7,6 +7,7 @@ from django.views.generic import (ListView,
                                   UpdateView,)
 
 from players.models import Player
+from players.views import stats
 
 urlpatterns = patterns('',
     url(r'^players/$', ListView.as_view(
@@ -23,6 +24,9 @@ urlpatterns = patterns('',
         model=Player,
         context_object_name="player",
     ), name="golfstats-players-players-detail"),
+
+    url(r'^players/(?P<pk>\d+)/stats/$', stats,
+        name="golfstats-players-players-stats"),
 
     url(r'^players/(?P<pk>\d+)/edit/', UpdateView.as_view(
         model=Player,

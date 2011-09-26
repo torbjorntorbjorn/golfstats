@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load golfstats_players %}
+
+{% block end_of_body %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+google.load('visualization', '1.0', {'packages':['corechart']});
+google.setOnLoadCallback(function() {
+    for(var x=0; x < player_data.length; x++) {
+        /* Lets build a chart */
+        var data = $.parseJSON(player_data[x]);
+
+        var table = new google.visualization.DataTable();
+        table.addColumn('string', 'Game');
+        table.addColumn('number', 'Score');
+
+        for(var y=0; y < data.results.length; y++) {
+            table.addRow([
+                data.results[y].game,
+                data.results[y].score,
+            ]);
+        }
+
+        var container = $('#chart_player_course_' + data.course).get(0);
+
+        var chart = new google.visualization.LineChart(container);
+        var options = {
+            title: 'Score on course ' + data.course,
+            width: 600,
+            height: 300,
+        };
+
+        chart.draw(table, options);
+    }
+});
+
+</script>
+{% endblock %}
+
+{% block end_of_head %}
+<script>
+var player_data = [];
+
+function addPlayerData(data) {
+    player_data.push(data);
+}
+</script>
+{% endblock %}
+
+{% block content %}
+
+<h1>Stats for {{ player.name }}</h1>
+<p><a href="{% url "golfstats-players-players-detail" player.id %}">Back</a></p>
+
+{% player_courses player player_courses %}
+
+{% for course in player_courses %}
+<h2>{{ course.name }}</h2>
+
+<div id="chart_player_course_{{ course.id }}">Please wait, loading ...</div>
+
+<script>
+addPlayerData('{% player_course_graph player course %}');
+</script>
+
+{% endfor %}
+
+
+{% endblock %}

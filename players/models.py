@@ -7,6 +7,8 @@ class Player(models.Model):
     name = models.CharField(max_length=255)
     user = models.OneToOneField(User, null=True, blank=True)
     trusts = models.ManyToManyField("Player", null=True, blank=True)
+    created = models.DateTimeField()
+    pdga_number = models.CharField(max_length=15)
 
     def __unicode__(self):
         return self.name

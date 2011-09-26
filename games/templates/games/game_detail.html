@@ -51,7 +51,7 @@
     <dd>
         {% game_winner game winner %}
         {% if winner %}
-            <a href="{% url "golfstats-players-players-detail" winner.player.id %}">{{ winner.player }}</a> ({{ winner.score }}, {{ winner.throws }} throws)
+            <a href="{% url "golfstats-players-players-detail" winner.player.id %}">{{ winner.player }}</a> ({{ winner.score_display }}, {{ winner.throws }} throws)
         {% else %}
             Nobody
         {% endif %}
