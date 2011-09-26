@@ -42,6 +42,10 @@ class Game(models.Model):
         return "Game %s" % (self.id)
 
     def save(self, *kargs, **kwargs):
+        # Set created timestamp
+        if not self.created:
+            self.created = datetime.now()
+
         super(Game, self).save(*kargs, **kwargs)
 
         # We are a saved instance, have finished and we are not verified
