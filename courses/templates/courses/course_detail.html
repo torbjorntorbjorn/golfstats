@@ -22,7 +22,14 @@
     <dd>
         {% course_best_round course best_round %}
         {% if best_round %}
-        {{ best_round.throws }} (by <a href="{% url "golfstats-players-players-detail" best_round.player.id %}">{{ best_round.player }}</a> in Game <a href="{% url "golfstats-games-games-detail" best_round.game.id %}">{{ best_round.game.id }}</a>)
+            {{ best_round.throws }}
+            (by <a
+                href="{% url "golfstats-players-players-detail" best_round.player.id %}">
+                    {{ best_round.player }}
+            </a> in Game <a
+                href="{% url "golfstats-games-games-detail" best_round.game.id %}">
+                    {{ best_round.game.id }}
+            </a>)
         {% else %}
             N/A
         {% endif %}
