@@ -20,8 +20,12 @@ def _get_args():
     ]
 
 
-def test():
+def test(app=None):
     args = _get_args()
+
+    if app:
+        args.append(app)
+
     res = local(" ".join(args), False)
 
     if res.return_code == 0:
