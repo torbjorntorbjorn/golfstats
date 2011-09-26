@@ -2,6 +2,8 @@
 
 from fabric.api import local
 
+DB_NAME = "golfstats"
+
 
 def _get_args():
     return [
@@ -45,3 +47,20 @@ def coverage():
 
 def flake8():
     local("find . -name '*.py' -exec flake8 {} \;", False)
+
+
+def dropdb():
+    sql_statements = [
+        "DROP DATABASE IF EXISTS %s" % (DB_NAME),
+        "CREATE DATABASE %s CHARSET utf8" % (DB_NAME),
+    ]
+    local('mysql -e"%s"' % ("; ".join(sql_statements)), False)
+
+
+def syncdb():
+    local("python manage.py syncdb --noinput", False)
+
+
+def freshdb():
+    dropdb()
+    syncdb()
