@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -48,3 +50,10 @@ class Player(models.Model):
 
         # Trust new user
         self.trusts.add(player)
+
+    def save(self, *kargs, **kwargs):
+        # Set created timestamp if not set
+        if not self.created:
+            self.created = datetime.now()
+
+        super(Player, self).save(*kargs, **kwargs)
