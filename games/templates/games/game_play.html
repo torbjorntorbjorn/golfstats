@@ -46,7 +46,7 @@
 <h2>Scorecard</h2>
 
 <form method="post" action=".">{% csrf_token %}
-    <table id="scorecard">
+    <table id="scorecard" data-game_id="{{ game.id }}">
         <thead>
             <tr>
                 <td>Holes / Players</td>
