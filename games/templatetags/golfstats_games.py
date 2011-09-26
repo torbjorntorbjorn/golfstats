@@ -8,6 +8,40 @@ register = template.base.Library()
 
 
 @register.tag
+def course_best_round(parser, token):
+
+    try:
+        tag_name, course, context_name = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires two arguments" %
+            token.contents.split()[0])
+
+    return CourseBestRoundNode(course, context_name)
+
+
+class CourseBestRoundNode(template.Node):
+    def __init__(self, course, context_name):
+        self.course = Variable(course)
+        self.context_name = context_name
+
+    def render(self, context):
+        super(CourseBestRoundNode, self).render(context)
+        course = self.course.resolve(context)
+
+        try:
+            context[self.context_name] = FinishedGamePlayer.objects.filter(
+                game__course=course).exclude(dnf=True).order_by(
+                    'score')[0]
+        except IndexError:
+            pass
+
+        return ''
+
+
+
+
+@register.tag
 def player_games_won(parser, token):
 
     try:
