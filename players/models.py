@@ -4,6 +4,8 @@ from django.db import models
 
 from django.contrib.auth.models import User
 
+from courses.models import Course
+
 
 class Player(models.Model):
     name = models.CharField(max_length=255)
@@ -21,6 +23,29 @@ class Player(models.Model):
             return game
         except IndexError:
             pass
+
+    @property
+    def played_courses(self, minimum_games=3):
+        # TODO: Not happy about this, here we are reaching far too wide.
+        # We are coupling too tight with both courses and games,
+
+        # Grab distinct course ids for courses we have played
+        all_course_ids = [x["course"] for x in self.game_set.all(). \
+            values("course").order_by("course").distinct()]
+
+        valid_course_ids = []
+
+        # Go through all courses we have played,
+        # find those where we have more than minimum_games
+        for course_id in all_course_ids:
+            course_games = self.game_set.filter(course__id=course_id)
+
+            if course_games.count() >= minimum_games:
+                valid_course_ids.append(course_id)
+
+        # Realize our valid courses objects
+        courses = Course.objects.filter(id__in=valid_course_ids)
+        return courses
 
     def does_trust(self, player):
         # Player with no self.user trusts everybody

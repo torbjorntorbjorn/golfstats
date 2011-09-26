@@ -53,9 +53,7 @@ function addPlayerData(data) {
 <h1>Stats for {{ player.name }}</h1>
 <p><a href="{% url "golfstats-players-players-detail" player.id %}">Back</a></p>
 
-{% player_courses player player_courses %}
-
-{% for course in player_courses %}
+{% for course in player.played_courses %}
 <h2>{{ course.name }}</h2>
 
 <div id="chart_player_course_{{ course.id }}">Please wait, loading ...</div>
