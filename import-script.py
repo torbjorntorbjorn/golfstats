@@ -119,10 +119,12 @@ games = []
 
 # Create the players
 cur.execute('SELECT * FROM `main_player` ORDER BY `id` ASC')
-admin_player = Player.objects.create(name='Admin')
+admin_player = Player.objects.create(name='Admin',
+    created=datetime.datetime.now())
 
 for player_row in cur.fetchall():
-    player = Player.objects.create(name=player_row['name'])
+    player = Player.objects.create(name=player_row['name'],
+        created=datetime.datetime.now())
     players.update({player_row['id']: player})
 
 
@@ -241,3 +243,15 @@ for game_row in cur.fetchall():
 
     print 'Finished game %s (original ID: %s) on %s' % \
         (game.id, game_row['id'], game.course)
+
+
+# Now, iterate over players and set "created" to the timestamp
+# of the first finished game
+for player in Player.objects.all():
+    try:
+        last_game = player.finishedgameplayer_set.order_by('game__finished')[0]
+    except IndexError:
+        continue
+
+    player.created = last_game.game.finished
+    player.save()
