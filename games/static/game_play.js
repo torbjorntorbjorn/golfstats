@@ -16,7 +16,12 @@ $(function() {
         text: "debug: fill scorecard with par",
         click: function(e) {
             $("#scorecard input.ob_throws").val(0);
-            $("#scorecard input.throws").val(3).change();
+            $("#scorecard input.throws").each(function(e, el) {
+                var el = $(el);
+                el.val(el.parents("tr").data("coursehole_par"));
+            });
+
+            $("#scorecard input.throws").change();
         }
     }).appendTo("section:first");
 
