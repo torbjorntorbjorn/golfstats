@@ -40,6 +40,31 @@ class CourseBestGameNode(template.Node):
 
 
 @register.tag
+def player_games_won(parser, token):
+
+    try:
+        tag_name, player = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires one rgument" %
+            token.contents.split()[0])
+
+    return PlayerGamesWonNode(player)
+
+
+class PlayerGamesWonNode(template.Node):
+    def __init__(self, player):
+        self.player = Variable(player)
+
+    def render(self, context):
+        super(PlayerGamesWonNode, self).render(context)
+        player = self.player.resolve(context)
+
+        return player.finishedgameplayer_set.filter(
+            order=0).count()
+
+
+@register.tag
 def game_winner(parser, token):
 
     try:

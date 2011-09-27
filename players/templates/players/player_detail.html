@@ -24,7 +24,7 @@
     <dd>{{ player.finishedgameplayer_set.count }}</dd>
 
     <dt>Games won</dt>
-    <dd>{{ player.games_won.count }}</dd>
+    <dd>{% player_games_won player %}</dd>
 </dl>
 
 <h2>Finished games</h2>

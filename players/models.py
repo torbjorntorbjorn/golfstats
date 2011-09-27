@@ -47,12 +47,6 @@ class Player(models.Model):
         courses = Course.objects.filter(id__in=valid_course_ids)
         return courses
 
-    @property
-    def games_won(self):
-        # TODO: Coupling might be a bit tight here as well
-        return self.finishedgameplayer_set.filter(
-            order=0)
-
     def does_trust(self, player):
         # Player with no self.user trusts everybody
         if not self.user:
