@@ -2,6 +2,8 @@ from django import template
 from django.template import Variable
 import json
 
+from courses.models import Course
+from games.models import Game
 
 register = template.base.Library()
 
@@ -46,3 +48,39 @@ class PlayerCourseGraphNode(template.Node):
         data['results'] = results
 
         return json.dumps(data)
+
+
+@register.tag
+def player_courses(parser, token):
+
+    try:
+        tag_name, player, context_name = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires two arguments" %
+            token.contents.split()[0])
+
+    return PlayerCoursesNode(player, context_name)
+
+
+class PlayerCoursesNode(template.Node):
+    def __init__(self, player, context_name):
+        self.player = Variable(player)
+        self.context_name = context_name
+
+    def render(self, context):
+        super(PlayerCoursesNode, self).render(context)
+        courses = []
+        player = self.player.resolve(context)
+
+        # Lets find the courses this player has played on
+        for course in Course.objects.all():
+            # Try to find games on this course
+            games = Game.objects.filter(players__in=[player],
+                course=course)
+
+            if games and games.count() > 2:
+                courses.append(course)
+
+        context[self.context_name] = courses
+        return ''
