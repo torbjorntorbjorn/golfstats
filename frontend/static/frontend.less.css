@@ -80,6 +80,9 @@ table.standings th.player {
   width: 10em;
   text-align: left;
 }
+table.players-list {
+  width: 500px;
+}
 dl.model-details {
   width: 400px;
   overflow: hidden;
