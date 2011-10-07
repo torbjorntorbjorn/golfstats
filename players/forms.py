@@ -6,4 +6,4 @@ from players.models import Player
 class PlayerForm(ModelForm):
     class Meta:
         model = Player
-        fields = ("name", "trusts", "pdga_number")
+        fields = ("name", "pdga_number")
