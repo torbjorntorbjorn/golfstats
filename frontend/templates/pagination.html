@@ -1,0 +1,20 @@
+{% load url from future %}
+<ul class="pagination cf">
+    <li class="previous">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% else %}
+            Previous
+        {% endif %}
+    </li>
+    <li class="middle">
+        Showing page {{ page_obj.number }} of {{ paginator.num_pages }}
+    </li>
+    <li class="next">
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        {% else %}
+            Next
+        {% endif %}
+    </li>
+</ul>
