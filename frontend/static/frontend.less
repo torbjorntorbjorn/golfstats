@@ -1,7 +1,7 @@
 
 nav#nav-main {
-    float: left;
     width: 200px;
+    display: table-cell;
 
     p {
         font-weight: bold;
@@ -16,6 +16,59 @@ nav#nav-main {
 
     ul {
         list-style-type: none;
+    }
+}
+
+table#scorecard {
+    width: 100%;
+
+    th {
+        width: 200px;
+    }
+
+    td {
+        text-align: center;
+    }
+
+    tbody td {
+        padding: 5px 0;
+        font-size: 20px;
+        font-weight: bold;
+    }
+}
+
+.wrapper {
+    display: table;
+    width: 100%;
+}
+
+.content {
+    display: table-cell;
+}
+
+ul.pagination {
+    width: 350px;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 10px;
+
+    li {
+        float: left;
+        list-style-type: none;
+    }
+
+    li.previous {
+        width: 75px;
+    }
+
+    li.middle {
+        width: 200px;
+        text-align: center;
+    }
+
+    li.next {
+        width: 75px;
+        text-align: right;
     }
 }
 
@@ -101,4 +154,22 @@ ol.number-selector li {
     &.active {
         background-color: lightgray;
     }
+}
+
+// Temporary clearfix gathered from http://nicolasgallagher.com/micro-clearfix-hack/
+// Will remain until replaced by HTML5 boilerplate
+/* For modern browsers */
+.cf:before,
+.cf:after {
+    content:"";
+    display:table;
+}
+
+.cf:after {
+    clear:both;
+}
+
+/* For IE 6/7 (trigger hasLayout) */
+.cf {
+    zoom:1;
 }
