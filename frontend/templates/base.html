@@ -12,13 +12,46 @@
     <div class="wrapper">
         <nav id="nav-main">
             <ul>
+                {% if user.is_authenticated %}
+                <li>
+                    <p>Your account</p>
+                    <ul>
+                        <li><a href="{% url "auth_logout" %}">Logout</a></li>
+                        <li><a href="{% url "auth_password_change" %}">Change password</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                 <li>
+                    <p>Your account</p>
+                    <ul>
+                        <li><a href="{% url "auth_login" %}">Login</a></li>
+                        <li><a href="{% url "registration_register" %}">Register</a></li>
+                        <li><a href="{% url "auth_password_reset" %}">Reset password</a></li>
+                    </ul>
+                </li>
+                {% endif %}
+
                 <li>
                     <p>Games</p>
                     <ul>
                         <li><a href="{% url "golfstats-games-games" %}">List</a></li>
-                        <li><a href="{% url "golfstats-games-games-create" %}">Create</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url "golfstats-games-games-create" %}">Start game</a></li>
+                        {% endif %}
                     </ul>
                 </li>
+
+                <li>
+                    <p>Players</p>
+                    <ul>
+                        <li><a href="{% url "golfstats-players-players" %}">List</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url "golfstats-players-players-create" %}">Create player</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+
+                {% if user.is_staff %}
                 <li>
                     <p>Arenas</p>
                     <ul>
@@ -61,13 +94,7 @@
                         <li><a href="{% url "golfstats-courses-tee-create" %}">Create</a></li>
                     </ul>
                 </li>
-                <li>
-                    <p>Players</p>
-                    <ul>
-                        <li><a href="{% url "golfstats-players-players" %}">List</a></li>
-                        <li><a href="{% url "golfstats-players-players-create" %}">Create</a></li>
-                    </ul>
-                </li>
+                {% endif %}
 
             </ul>
         </nav>
