@@ -125,6 +125,7 @@ INSTALLED_APPS = (
     'players',
     'games',
     'api',
+    'registration',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -165,3 +166,6 @@ if DEBUG:
     import os.path
     if os.path.isfile("settings_local.py"):
         from settings_local import *
+
+# Django-registration settings
+ACCOUNT_ACTIVATION_DAYS=7

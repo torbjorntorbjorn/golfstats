@@ -1,0 +1,8 @@
+Hello,
+
+Your account with Golfstats has now been created. Please activate your account by visiting the following link: http://{{ site.domain }}/account/activate/{{ activation_key }}
+
+If you don't activate your account within {{ expiration_days }} days your account will be deleted.
+
+Thanks and regards,
+Golfstats
