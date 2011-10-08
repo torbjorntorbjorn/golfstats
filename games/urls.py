@@ -6,7 +6,7 @@ from django.views.generic import (ListView,
                                   DeleteView,)
 
 from games.models import Game
-from games.views import play
+from games.views import play, GameCreateView
 
 from games.forms import GameForm
 
@@ -17,7 +17,7 @@ urlpatterns = patterns('',
         paginate_by=30,
     ), name="golfstats-games-games"),
 
-    url(r'^games/create/$', CreateView.as_view(
+    url(r'^games/create/$', GameCreateView.as_view(
         model=Game,
         form_class=GameForm,
         success_url=reverse_lazy('golfstats-games-games'),
