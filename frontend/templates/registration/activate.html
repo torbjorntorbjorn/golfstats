@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Account activation failed</h1>
+<h1>Account activation</h1>
 
+{% if account %}
+<p>Your account has now been activated and you are ready to login.</p>
+{% else %}
 <p>We were unable to activate this account with the given key. Maybe you have clicked the activation link twice, so your account is already activated?</p>
+{% endif %}
 {% endblock %}
