@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load url from future %}
 
 {% block content %}
 <h1>Login</h1>
@@ -12,4 +13,11 @@
 
     <button type="submit">Login</button>
 </form>
+
+{% if DEBUG %}
+<form method="post" action="{% url "golfstats-debug-login" %}">{% csrf_token %}
+    <button type="submit">DEBUG: login</button>
+</form>
+{% endif %}
+
 {% endblock %}
