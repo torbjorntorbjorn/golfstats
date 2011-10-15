@@ -5,12 +5,15 @@
 {% block content %}
 <h1>Games</h1>
 
+{% if user.is_authenticated %}
 <p>
     <a href="{% url "golfstats-games-games-create" %}">
         Create new game
     </a>
 </p>
+{% endif %}
 
+{% include "pagination.html" %}
 <table>
     <thead>
         <tr>
@@ -44,7 +47,7 @@
                         {% endfor %}
                     {% else %}
                         {% for player in game.players.all %}
-                            {{ player }} ({% game_player_score game player %}),
+                            <a href="{% url "golfstats-players-players-detail" player.id %}">{{ player }}</a> ({% game_player_score game player %}),
                         {% endfor %}
                     {% endif %}
                 </td>

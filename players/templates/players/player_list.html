@@ -1,24 +1,38 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load golfstats_games %}
 
 {% block content %}
 <h1>Players</h1>
 
+{% if user.is_authenticated %}
 <p>
     <a href="{% url "golfstats-players-players-create" %}">
         Create new player
     </a>
 </p>
+{% endif %}
 
-<ul>
-{% for player in players %}
-    <li>
-        <a href="{% url "golfstats-players-players-detail" player.id %}">
-            {{ player }}
-        </a>
-    </li>
-{% empty %}
-    <li>No players available</li>
-{% endfor %}
-</ul>
+{% include "pagination.html" %}
+
+<table class="players-list">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Created</th>
+            <th>Played</th>
+            <th>Won</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for player in players %}
+        <tr>
+            <td><a href="{% url "golfstats-players-players-detail" player.id %}">{{ player.name }}</a></td>
+            <td>{{ player.created|date:"d.m.Y" }}</td>
+            <td>{{ player.finishedgameplayer_set.count }}</td>
+            <td>{% player_games_won player %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

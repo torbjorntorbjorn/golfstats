@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^players/$', ListView.as_view(
         model=Player,
         context_object_name="players",
+        paginate_by=30,
     ), name="golfstats-players-players"),
 
     url(r'^players/create/$', CreateView.as_view(

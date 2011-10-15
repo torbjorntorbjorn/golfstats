@@ -2,8 +2,10 @@ import re
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.views.generic import CreateView
 from django.shortcuts import render, get_object_or_404
 
+from players.models import Player
 from games.models import Game, GameHole
 
 THROWS_PATTERN = "throws-player:\d+-game:\d+-coursehole:\d+$"
@@ -120,3 +122,25 @@ def play(req, pk):
         "game": game,
     }
     return render(req, "games/game_play.html", data)
+
+
+class GameCreateView(CreateView):
+    def post(self, request, *args, **kwargs):
+        self.object = None
+
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            self.object = form.save(commit=False)
+
+            if hasattr(request.user, 'player'):
+                self.object.creator = request.user.player
+            else:
+                # TODO: We must probably make sure all users
+                # have actual players to avoid this problem
+                self.object.creator = Player.objects.get(name='Admin')
+
+            self.object.save()
+            return super(GameCreateView, self).form_valid(form)
+        else:
+            return self.form_invalid(form)
