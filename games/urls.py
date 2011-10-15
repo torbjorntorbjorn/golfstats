@@ -2,7 +2,6 @@ from django.conf.urls.defaults import patterns, url
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import (ListView,
                                   DetailView,
-                                  CreateView,
                                   DeleteView,)
 
 from games.models import Game
