@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls.defaults import patterns, url, include
 from django.views.generic import TemplateView
 from django.views.generic.simple import direct_to_template
@@ -19,3 +20,10 @@ urlpatterns += patterns('',
         'template': 'registration/profile.html'},
         name='auth_profile'),
 )
+
+if settings.DEBUG:
+    from frontend.views_debug import login
+
+    urlpatterns += patterns('',
+        url(r'^debug/login/$', login, name="golfstats-debug-login"),
+    )
