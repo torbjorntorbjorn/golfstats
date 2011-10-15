@@ -169,3 +169,10 @@ if DEBUG:
 
 # Django-registration settings
 ACCOUNT_ACTIVATION_DAYS=7
+
+# Include our own context processors
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
+
+TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + (
+    'frontend.context_processors.debug',
+)
