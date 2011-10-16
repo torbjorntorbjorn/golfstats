@@ -125,6 +125,10 @@ def play(req, pk):
 
 
 class GameCreateView(CreateView):
+    # On success, redirect to game-detail view
+    def get_success_url(self):
+        return reverse("golfstats-games-games-detail", args=[self.object.id])
+
     def post(self, request, *args, **kwargs):
         self.object = None
 
