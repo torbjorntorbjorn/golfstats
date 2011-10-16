@@ -5,7 +5,6 @@ from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.views.generic import CreateView
 from django.shortcuts import render, get_object_or_404
 
-from players.models import Player
 from games.models import Game, GameHole
 
 THROWS_PATTERN = "throws-player:\d+-game:\d+-coursehole:\d+$"
