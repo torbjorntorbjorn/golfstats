@@ -134,15 +134,9 @@ class GameCreateView(CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
+            # Add the current users player as creator
             self.object = form.save(commit=False)
-
-            if hasattr(request.user, 'player'):
-                self.object.creator = request.user.player
-            else:
-                # TODO: We must probably make sure all users
-                # have actual players to avoid this problem
-                self.object.creator = Player.objects.get(name='Admin')
-
+            self.object.creator = request.player
             self.object.save()
             return super(GameCreateView, self).form_valid(form)
         else:

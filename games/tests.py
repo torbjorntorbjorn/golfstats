@@ -439,12 +439,22 @@ class GamesFrontendTest(TestCase):
 
         self.assertContains(r, 'Create or update a game', count=1)
 
+        # Create a user
+        user = User.objects.create_user("testuser", password="testpassword")
+
+        # Set newly created user on player 0
+        player = players[0]
+        player.user = user
+        player.save()
+        players[0].user = user
+
         c = Client()
+        # Login to created user
+        c.login(username="testuser", password="testpassword")
+
         r = c.post('/games/create/', {
             "course": course.id,
             "players": [p.id for p in players],
-            "state": Game.STATE_CREATED,
-            "creator": players[0].id,
         })
 
         self.assertEqual(r.status_code, 302)
