@@ -105,7 +105,7 @@ class PlayerFrontendTest(TestCase):
         c = Client()
         r = c.get("/players/%s/edit/" % (player.id))
 
-        self.assertContains(r, player.name, count=2)
+        self.assertContains(r, player.name, count=1)
 
         c = Client()
         r = c.post("/players/%s/edit/" % (player.id), {
