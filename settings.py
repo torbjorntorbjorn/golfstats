@@ -96,6 +96,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Our custom middleware
     'players.middleware.PlayerMiddleware',
 )
 
@@ -119,13 +121,18 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 
+    # Utils
     'django_extensions',
     'django_nose',
+
+    # Our applications
     'frontend',
     'courses',
     'players',
     'games',
     'api',
+
+    # Third-party applications
     'registration',
 )
 
