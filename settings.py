@@ -1,5 +1,6 @@
 # flake8: noqa
 # Django settings for golfstats project.
+import re
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -98,6 +99,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # Our custom middleware
+    'frontend.middleware.LoginRequiredMiddleware',
     'players.middleware.PlayerMiddleware',
 )
 
@@ -183,4 +185,25 @@ from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 
 TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + (
     'frontend.context_processors.debug',
+)
+
+# regex for URL names that are allowed non-authenticated access
+# Index, game-list and game-detail and registration views for starters
+LOGIN_NOT_REQUIRED_URLS = (
+    re.compile("^auth_\w+"),  # All auth urls
+    re.compile("^registration_\w+"),  # All registration urls
+
+    re.compile("^golfstats-index$"),
+
+    re.compile("^golfstats-games-games$"),
+    re.compile("^golfstats-games-games-detail$"),
+
+    re.compile("^golfstats-players-players$"),
+    re.compile("^golfstats-players-players-detail$"),
+    re.compile("^golfstats-players-players-stats$"),
+
+    re.compile("^golfstats-courses-arenas$"),
+    re.compile("^golfstats-courses-arenas-detail$"),
+    re.compile("^golfstats-courses-courses$"),
+    re.compile("^golfstats-courses-course-detail$"),
 )

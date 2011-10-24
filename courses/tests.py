@@ -1,7 +1,9 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.core.exceptions import ValidationError
 
 from courses.models import Arena, Tee, Basket, Hole, Course, CourseHole
+
+from frontend.tests import get_logged_in_client
 
 
 NUM_HOLES = 18
@@ -157,12 +159,12 @@ class ArenaTest(TestCase):
 
 class ArenaFrontendTest(TestCase):
     def test_create(self):
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/arenas/create/")
 
         self.assertContains(r, 'Create or update arena', count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post('/arenas/create/', {
             "name": "Some arena name",
         })
@@ -175,7 +177,7 @@ class ArenaFrontendTest(TestCase):
     def test_index(self):
         arenas = make_arenas(5)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get('/arenas/')
 
         self.assertEquals(r.status_code, 200)
@@ -188,7 +190,7 @@ class ArenaFrontendTest(TestCase):
         # Pull up a test arena
         arena = make_arenas()[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/arenas/%s/" % (arena.id))
 
         self.assertContains(r, arena.name, count=1)
@@ -197,13 +199,13 @@ class ArenaFrontendTest(TestCase):
         # Pull up a test arena
         arena = make_arenas()[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/arenas/%s/delete/" % (arena.id))
 
         self.assertContains(r, arena.name, count=1)
 
         # Simply posting there should delete the instance
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/arenas/%s/delete/" % (arena.id))
 
         self.assertEqual(r.status_code, 302)
@@ -216,12 +218,12 @@ class ArenaFrontendTest(TestCase):
         # Pull up a test arena
         arena = make_arenas()[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/arenas/%s/edit/" % (arena.id))
 
         self.assertContains(r, arena.name, count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/arenas/%s/edit/" % (arena.id), {
             "name": "new name",
         })
@@ -241,7 +243,7 @@ class TeeFrontendTest(TestCase):
     def test_index(self):
         tees = make_tees(self.arena, 5)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/tees/")
 
         self.assertEqual(r.status_code, 200)
@@ -251,12 +253,12 @@ class TeeFrontendTest(TestCase):
             self.assertIn(tee, tees)
 
     def test_create(self):
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/tees/create/")
 
         self.assertContains(r, 'Create or update tee', count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post('/tees/create/', {
             "arena": self.arena.id,
             "description": "Some kind of tee",
@@ -270,7 +272,7 @@ class TeeFrontendTest(TestCase):
     def test_detail(self):
         tee = make_tees(self.arena)[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/tees/%s/" % (tee.id))
 
         self.assertContains(r, tee.description, count=1)
@@ -279,12 +281,12 @@ class TeeFrontendTest(TestCase):
         # Pull up a test arena
         tee = make_tees(self.arena)[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/tees/%s/edit/" % (tee.id))
 
         self.assertContains(r, tee.description, count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/tees/%s/edit/" % (tee.id), {
             "arena": self.arena.id,
             "description": "new description",
@@ -301,13 +303,13 @@ class TeeFrontendTest(TestCase):
         # Pull up a test arena
         tee = make_tees(self.arena)[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/tees/%s/delete/" % (tee.id))
 
         self.assertContains(r, tee.description, count=1)
 
         # Simply posting there should delete the instance
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/tees/%s/delete/" % (tee.id))
 
         self.assertEqual(r.status_code, 302)
@@ -326,7 +328,7 @@ class HoleFrontendTest(TestCase):
     def test_index(self):
         holes = [make_hole(self.tee, self.basket) for x in range(5)]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/holes/")
 
         self.assertEqual(r.status_code, 200)
@@ -336,12 +338,12 @@ class HoleFrontendTest(TestCase):
             self.assertIn(hole, holes)
 
     def test_create(self):
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/holes/create/")
 
         self.assertContains(r, 'Create or update hole', count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post('/holes/create/', {
             "tee": self.tee.id,
             "basket": self.basket.id,
@@ -356,7 +358,7 @@ class HoleFrontendTest(TestCase):
     def test_detail(self):
         hole = make_hole(self.tee, self.basket, 3)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/holes/%s/" % (hole.id))
 
         self.assertContains(r, "Hole %s" % (hole.id), count=1)
@@ -364,12 +366,12 @@ class HoleFrontendTest(TestCase):
     def test_update(self):
         hole = make_hole(self.tee, self.basket, 3)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/holes/%s/edit/" % (hole.id))
 
         self.assertContains(r, "Create or update hole", count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/holes/%s/edit/" % (hole.id), {
             "tee": self.tee.id,
             "basket": self.basket.id,
@@ -386,13 +388,13 @@ class HoleFrontendTest(TestCase):
     def test_delete(self):
         hole = make_hole(self.tee, self.basket, 3)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/holes/%s/delete/" % (hole.id))
 
         self.assertContains(r, "hole %s" % (hole.id), count=1)
 
         # Simply posting there should delete the instance
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/holes/%s/delete/" % (hole.id))
 
         self.assertEqual(r.status_code, 302)
@@ -407,12 +409,12 @@ class BasketFrontendTest(TestCase):
         self.arena = make_arenas()[0]
 
     def test_create(self):
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/baskets/create/")
 
         self.assertContains(r, 'Create or update basket', count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post('/baskets/create/', {
             "arena": self.arena.id,
             "description": "Some basket description",
@@ -427,7 +429,7 @@ class BasketFrontendTest(TestCase):
     def test_index(self):
         baskets = make_baskets(self.arena)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get('/baskets/')
 
         self.assertEquals(r.status_code, 200)
@@ -440,7 +442,7 @@ class BasketFrontendTest(TestCase):
         # Pull up a test basket
         basket = make_baskets(self.arena)[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/baskets/%s/" % (basket.id))
 
         self.assertContains(r, "Basket %s" % basket.id, count=1)
@@ -449,13 +451,13 @@ class BasketFrontendTest(TestCase):
         # Pull up a test basket
         basket = make_baskets(self.arena)[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/baskets/%s/delete/" % (basket.id))
 
         self.assertContains(r, "Delete basket %s" % basket.id, count=1)
 
         # Simply posting there should delete the instance
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/baskets/%s/delete/" % (basket.id))
 
         self.assertEqual(r.status_code, 302)
@@ -468,12 +470,12 @@ class BasketFrontendTest(TestCase):
         # Pull up a test basket
         basket = make_baskets(self.arena)[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/baskets/%s/edit/" % (basket.id))
 
         self.assertContains(r, basket.description, count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/baskets/%s/edit/" % (basket.id), {
             "arena": self.arena.id,
             "description": "new description",
@@ -496,7 +498,7 @@ class CourseFrontendTest(TestCase):
     def test_index(self):
         courses = make_course(self.arena, 5)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courses/")
 
         self.assertEqual(r.status_code, 200)
@@ -506,12 +508,12 @@ class CourseFrontendTest(TestCase):
             self.assertIn(course, courses)
 
     def test_create(self):
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courses/create/")
 
         self.assertContains(r, 'Create or update course', count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post('/courses/create/', {
             "arena": self.arena.id,
             "name": "Some kind of course",
@@ -525,7 +527,7 @@ class CourseFrontendTest(TestCase):
     def test_detail(self):
         course = make_course(self.arena)[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courses/%s/" % (course.id))
 
         self.assertContains(r, course.name, count=1)
@@ -534,12 +536,12 @@ class CourseFrontendTest(TestCase):
         # Pull up a test arena
         course = make_course(self.arena)[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courses/%s/edit/" % (course.id))
 
         self.assertContains(r, course.name, count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/courses/%s/edit/" % (course.id), {
             "arena": self.arena.id,
             "name": "new name",
@@ -556,13 +558,13 @@ class CourseFrontendTest(TestCase):
         # Make a test course
         course = make_course(self.arena)[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courses/%s/delete/" % (course.id))
 
         self.assertContains(r, course.name, count=1)
 
         # Simply posting there should delete the instance
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/courses/%s/delete/" % (course.id))
 
         self.assertEqual(r.status_code, 302)
@@ -584,7 +586,7 @@ class CourseHoleFrontendTest(TestCase):
         holes = [self.hole for x in range(5)]
         courseholes = make_course_holes(self.course, holes)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courseholes/")
 
         self.assertEqual(r.status_code, 200)
@@ -594,12 +596,12 @@ class CourseHoleFrontendTest(TestCase):
             self.assertIn(coursehole, courseholes)
 
     def test_create(self):
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courseholes/create/")
 
         self.assertContains(r, 'Create or update coursehole', count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post('/courseholes/create/', {
             "course": self.course.id,
             "hole": self.hole.id,
@@ -615,7 +617,7 @@ class CourseHoleFrontendTest(TestCase):
     def test_detail(self):
         coursehole = make_course_holes(self.course, [self.hole])[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courseholes/%s/" % (coursehole.id))
 
         self.assertContains(r, "Coursehole %s" % (coursehole.name), count=1)
@@ -623,12 +625,12 @@ class CourseHoleFrontendTest(TestCase):
     def test_update(self):
         coursehole = make_course_holes(self.course, [self.hole])[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courseholes/%s/edit/" % (coursehole.id))
 
         self.assertContains(r, coursehole.name, count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/courseholes/%s/edit/" % (coursehole.id), {
             "course": self.course.id,
             "hole": self.hole.id,
@@ -646,13 +648,13 @@ class CourseHoleFrontendTest(TestCase):
     def test_delete(self):
         coursehole = make_course_holes(self.course, [self.hole])[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/courseholes/%s/delete/" % (coursehole.id))
 
         self.assertContains(r, coursehole.name, count=1)
 
         # Simply posting there should delete the instance
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/courseholes/%s/delete/" % (coursehole.id))
 
         self.assertEqual(r.status_code, 302)

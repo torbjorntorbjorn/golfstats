@@ -1,9 +1,11 @@
 import simplejson
 
-from django.test import TestCase, Client
+from django.test import TestCase
 from nose.plugins.attrib import attr  # NOQA
 
 from django.contrib.auth.models import User
+
+from frontend.tests import get_logged_in_client
 
 from players.models import Player
 
@@ -66,22 +68,26 @@ class PlayerFrontendTest(TestCase):
     def test_index(self):
         players = make_players(5)
 
-        c = Client()
+        c, user = get_logged_in_client(True)
         r = c.get("/players/")
 
         self.assertEqual(r.status_code, 200)
+
+        # Our client has generated a new player,
+        # make sure to include that player in our collection
+        players.append(user.player)
 
         context_players = r.context_data["players"]
         for player in context_players:
             self.assertIn(player, players)
 
     def test_create(self):
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/players/create/")
 
         self.assertContains(r, 'Create or update a player', count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post('/players/create/', {
             "name": "Test player",
         })
@@ -94,7 +100,7 @@ class PlayerFrontendTest(TestCase):
     def test_detail(self):
         player = make_players()[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/players/%s/" % (player.id))
 
         self.assertContains(r, "Player %s" % (player.name), count=1)
@@ -102,12 +108,12 @@ class PlayerFrontendTest(TestCase):
     def test_update(self):
         player = make_players()[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/players/%s/edit/" % (player.id))
 
         self.assertContains(r, player.name, count=1)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/players/%s/edit/" % (player.id), {
             "name": "new name",
         })
@@ -122,13 +128,13 @@ class PlayerFrontendTest(TestCase):
     def test_delete(self):
         player = make_players()[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/players/%s/delete/" % (player.id))
 
         self.assertContains(r, player.name, count=1)
 
         # Simply posting there should delete the instance
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/players/%s/delete/" % (player.id))
 
         self.assertEqual(r.status_code, 302)
@@ -141,7 +147,7 @@ class PlayerFrontendTest(TestCase):
 class PlayerApiTest(TestCase):
     def test_get(self):
         #  Grab an empty response
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/api/players/")
 
         # Check response code is reasonable
@@ -150,19 +156,19 @@ class PlayerApiTest(TestCase):
         # Should be valid JSON
         res = simplejson.loads(r.content)
 
-        # No players yet, should be empty
-        self.assertEqual(res, [])
+        # Only our auto-created player should exist
+        self.assertEqual(len(res), 1)
 
         # Create some test players, get and parse
         players = make_players(5)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/api/players/")
 
         resp = simplejson.loads(r.content)
 
-        # We got all our players back ?
-        self.assertEqual(len(players), len(resp))
+        # We got all our players, and our auto-generated player, back ?
+        self.assertEqual(len(players) + 1, len(resp))
 
         # Received names
         resp_names = [x["name"] for x in resp]
@@ -173,7 +179,7 @@ class PlayerApiTest(TestCase):
         # Check a single player
         player = players[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/api/players/%s/" % (player.id))
 
         self.assertEqual(r.status_code, 200)
@@ -189,7 +195,7 @@ class PlayerApiTest(TestCase):
         }
         req_payload = simplejson.dumps(req_data)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/api/players/", req_payload,
             content_type="application/json")
 

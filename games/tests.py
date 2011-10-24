@@ -1,7 +1,7 @@
 import simplejson
 from datetime import datetime
 
-from django.test import TestCase, Client
+from django.test import TestCase
 from nose.plugins.attrib import attr  # NOQA
 
 from django.core.exceptions import ValidationError
@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 
 from games.models import Game, GameHole, Course, CourseHole
 
+from frontend.tests import get_logged_in_client
 from courses.tests import make_a_whole_arena, make_course
 from players.tests import make_players
 
@@ -417,7 +418,7 @@ class GamesFrontendTest(TestCase):
             g.player = game.players
             games.append(g)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/games/")
 
         self.assertEqual(r.status_code, 200)
@@ -434,24 +435,17 @@ class GamesFrontendTest(TestCase):
         players = make_players(5)
         course = arena.course_set.all()[0]
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/games/create/")
 
         self.assertContains(r, 'Create or update a game', count=1)
 
-        # Create a user
-        user = User.objects.create_user("testuser", password="testpassword")
+        c, user = get_logged_in_client(True)
 
-        # Set newly created user on player 0
-        player = players[0]
-        player.user = user
-        player.save()
-        players[0].user = user
+        # Include our auto-generated player in the players of this game
+        players.append(user.player)
 
-        c = Client()
-        # Login to created user
-        c.login(username="testuser", password="testpassword")
-
+        # Create the game, our clients player will be the game creator
         r = c.post('/games/create/', {
             "course": course.id,
             "players": [p.id for p in players],
@@ -470,12 +464,12 @@ class GamesFrontendTest(TestCase):
             self.assertIn(player, game.players.all())
 
         # Our posted creator is the creator ?
-        self.assertEqual(players[0].id, game.creator.id)
+        self.assertEqual(user.player.id, game.creator.id)
 
     def test_detail(self):
         game = make_game()
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/games/%s/" % (game.id))
 
         self.assertContains(r, "Game %s" % (game.id), count=1)
@@ -483,13 +477,13 @@ class GamesFrontendTest(TestCase):
     def test_delete(self):
         game = make_game()
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/games/%s/delete/" % (game.id))
 
         self.assertContains(r, "game %s" % (game.id), count=1)
 
         # Simply posting there should delete the instance
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/games/%s/delete/" % (game.id))
 
         self.assertEqual(r.status_code, 302)
@@ -501,14 +495,14 @@ class GamesFrontendTest(TestCase):
     def test_play(self):
         game = make_game()
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/games/%s/play/" % (game.id))
 
         self.assertContains(r, "Playing game %s" % (game.id), count=1)
 
         self.assertEqual(game.state, game.STATE_CREATED)
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/games/%s/play/" % (game.id), {
             "game-state-change": "button value",
             "wanted-state": "start",
@@ -538,7 +532,7 @@ class GamesFrontendTest(TestCase):
         # Submit button key and value
         throws["score"] = "button value"
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/games/%s/play/" % (game.id), throws)
 
         # We managed to save scores ?
@@ -569,7 +563,7 @@ class GamesFrontendTest(TestCase):
         # Assert we have correct number of GameHoles
         self.assertEqual(len(throws) / 2, GameHole.objects.all().count())
 
-        c = Client()
+        c = get_logged_in_client()
         r = c.post("/games/%s/play/" % (game.id), {
             "game-state-change": "button value",
             "wanted-state": "finish",
@@ -587,7 +581,7 @@ class GamesFrontendTest(TestCase):
 class GamesApiTest(TestCase):
     def test_get_game(self):
         #  Grab an empty response
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/api/games/")
 
         # Check response code is reasonable
@@ -604,7 +598,7 @@ class GamesApiTest(TestCase):
         game2 = make_finished_game()
 
         # Get list of games
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/api/games/")
 
         self.assertEqual(r.status_code, 200)
@@ -622,7 +616,7 @@ class GamesApiTest(TestCase):
         self.assertIn(game2.id, resp_ids)
 
         # Get single game
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/api/games/%s/" % (game1.id))
 
         self.assertEqual(r.status_code, 200)
@@ -639,7 +633,7 @@ class GamesApiTest(TestCase):
         game = make_finished_game()
 
         # Grab gameholes JSON
-        c = Client()
+        c = get_logged_in_client()
         r = c.get("/api/games/%s/gameholes/" % (game.id))
 
         self.assertEqual(r.status_code, 200)
@@ -683,7 +677,7 @@ class GamesApiTest(TestCase):
         self.assertEqual(game.gamehole_set.all().count(), 0)
 
         # PUT in order to update gameholes
-        c = Client()
+        c = get_logged_in_client()
         r = c.put("/api/games/%s/gameholes/" % (game.id),
             gamehole_payload, content_type="application/json")
 
