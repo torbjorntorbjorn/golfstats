@@ -2,7 +2,7 @@ from players.models import Player
 
 
 class PlayerMiddleware(object):
-    def process_request(self, req):
+    def process_view(self, req, view_func, view_args, view_kwargs):
         # If user is authenticated, put player on request object
         # If there is no player, we create one
         if req.user.is_authenticated() and not hasattr(req, "player"):
