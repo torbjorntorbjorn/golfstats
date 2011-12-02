@@ -207,3 +207,10 @@ LOGIN_NOT_REQUIRED_URLS = (
     re.compile("^golfstats-courses-courses$"),
     re.compile("^golfstats-courses-course-detail$"),
 )
+
+if DEBUG:
+    # If we are in debug mode, make the debug views not
+    # require auth
+    LOGIN_NOT_REQUIRED_URLS = LOGIN_NOT_REQUIRED_URLS + (
+        re.compile("^golfstats-debug-login$"),
+    )
