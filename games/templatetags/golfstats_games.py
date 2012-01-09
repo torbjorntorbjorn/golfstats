@@ -2,7 +2,7 @@ from django import template
 from django.template import Variable
 from django.template.base import VariableDoesNotExist
 
-from games.models import FinishedGamePlayer
+from games.models import FinishedGamePlayer, FinishedGame
 
 register = template.base.Library()
 
@@ -65,7 +65,7 @@ class PlayerGamesWonNode(template.Node):
 
 
 @register.tag
-def game_winner(parser, token):
+def game_winners(parser, token):
 
     try:
         tag_name, game, context_name = token.split_contents()
@@ -74,23 +74,22 @@ def game_winner(parser, token):
             "%r tag requires two arguments" %
             token.contents.split()[0])
 
-    return GameWinnerNode(game, context_name)
+    return GameWinnersNode(game, context_name)
 
 
-class GameWinnerNode(template.Node):
+class GameWinnersNode(template.Node):
     def __init__(self, game, context_name):
         self.game = Variable(game)
         self.context_name = context_name
 
     def render(self, context):
-        super(GameWinnerNode, self).render(context)
+        super(GameWinnersNode, self).render(context)
         game = self.game.resolve(context)
 
         try:
             context[self.context_name] = \
-                game.finishedgameplayer_set.filter(
-                    order=0)[0]
-        except IndexError:
+                game.finishedgame.winners
+        except FinishedGame.DoesNotExist:
             context[self.context_name] = ''
 
         return ''

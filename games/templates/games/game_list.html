@@ -21,7 +21,7 @@
             <th>Date</th>
             <th>Course</th>
             <th>State</th>
-            <th>Winner</th>
+            <th>Winners</th>
             <th>Players</th>
         </tr>
     </thead>
@@ -33,9 +33,18 @@
                 <td><a href="{% url "golfstats-courses-course-detail" game.course.id %}">{{ game.course }}</a></td>
                 <td>{{ game.get_state_display }}</td>
                 <td>
-                    {% game_winner game winner %}
-                    {% if winner %}
-                        <a href="{% url "golfstats-players-players-detail" winner.player.id %}">{{ winner.player }}</a>
+                    {% game_winners game winners %}
+                    {% if winners %}
+                        <ul>
+                        {% for winner in winners %}
+                        <li>
+                            <a
+                                href="{% url "golfstats-players-players-detail" winner.player.id %}">
+                                {{ winner.player }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                        </ul>
                     {% else %}
                         Nobody
                     {% endif %}

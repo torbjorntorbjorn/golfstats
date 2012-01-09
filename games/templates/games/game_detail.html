@@ -47,11 +47,21 @@
         </ul>
     </dd>
 
-    <dt>Winner</dt>
+    <dt>Winners</dt>
     <dd>
-        {% game_winner game winner %}
-        {% if winner %}
-            <a href="{% url "golfstats-players-players-detail" winner.player.id %}">{{ winner.player }}</a> ({{ winner.score_display }}, {{ winner.throws }} throws)
+        {% game_winners game winners %}
+        {% if winners %}
+            <ul>
+            {% for winner in winners %}
+            <li>
+                <a
+                    href="{% url "golfstats-players-players-detail" winner.player.id %}">
+                    {{ winner.player }}
+                </a>
+                ({{ winner.score_display }}, {{ winner.throws }} throws)
+            </li>
+            {% endfor %}
+            </ul>
         {% else %}
             Nobody
         {% endif %}
