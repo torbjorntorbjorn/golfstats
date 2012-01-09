@@ -120,7 +120,6 @@ class GamesTest(TestCase):
         for player in finished_players:
             self.assertIn(player, players)
 
-        # TODO: Figure out how test ordering
         scores = {}
 
         # Generate our own scores
@@ -171,6 +170,104 @@ class GamesTest(TestCase):
 
         # Assert that we have scored a total of 1
         self.assertEqual(fgp.score, 1)
+
+    def test_finished_game_player_ordering_all_winners(self):
+        # Make, start and play game
+        game = make_game()
+
+        game.start()
+        game.save()
+
+        play_game(game)
+        game.finish()
+        game.save()
+
+        # play_game leaves everything at par,
+        # so all players should be counted as winners
+        players_id = [x.id for x in game.players.all()]
+        winners_id = [x.id for x in game.finishedgame.winners]
+        self.assertEqual(set(players_id), set(winners_id))
+
+    def test_finished_game_player_ordering_one_winner(self):
+        # Make, start and play game
+        game = make_game()
+
+        game.start()
+        game.save()
+
+        play_game(game)
+
+        # play_game leaves everything at par,
+        # so we need to adjust some scores to a single winner
+        non_winners = game.players.all()[1:]
+
+        for non_winner in non_winners:
+            # Find a hole and set throws to 1 over par
+            hole = game.gamehole_set.filter(player=non_winner)[0]
+            hole.throws = hole.coursehole.hole.par + 1
+            hole.save()
+
+        game.finish()
+        game.save()
+
+        # Ensure that we have only one 1 winner,
+        # and that it is the first player
+        self.assertEqual(len(game.finishedgame.winners), 1)
+        self.assertEqual(game.finishedgame.winners[0].player,
+            game.players.all()[0])
+
+    def test_finished_game_player_ordering_mixed(self):
+        # Make, start and play game
+        game = make_game()
+
+        game.start()
+        game.save()
+
+        play_game(game)
+
+        # play_game leaves everything at par,
+        # so we will have adjust quite a bit
+        p1, p2, p3, p4, p5 = game.players.all()
+
+        # Player two and three ties the first place with -2
+        for p in [p2, p3]:
+            h = game.gamehole_set.filter(player=p)[0]
+            h.throws = h.coursehole.hole.par - 2
+            h.save()
+
+        # Player five in the middle with +2
+        h = game.gamehole_set.filter(player=p5)[0]
+        h.throws = h.coursehole.hole.par + 2
+        h.save()
+
+        # Player one and four takes up the rear with +5
+        for p in [p1, p4]:
+            h = game.gamehole_set.filter(player=p)[0]
+            h.throws = h.coursehole.hole.par + 5
+            h.save()
+
+        game.finish()
+        game.save()
+
+        # Player two and three are winners ?
+        self.assertEqual(set([x.player for x in game.finishedgame.winners]),
+            set([p2, p3]))
+
+        # They are also on order 0 ?
+        order_0 = [x.player for x in game.finishedgame.players.filter(order=0)]
+        self.assertEqual(set(order_0), set([p2, p3]))
+
+        # Player five is on order 1 ?
+        order_1 = [x.player for x in game.finishedgame.players.filter(order=1)]
+        self.assertEqual(order_1, [p5])
+
+        # Player one and four is on order 2 ?
+        order_1 = [x.player for x in game.finishedgame.players.filter(order=2)]
+        self.assertEqual(set(order_1), set([p1, p4]))
+
+        # Assert that there are no players on other orders
+        order_N = game.finishedgame.players.exclude(order__in=[0, 1, 2])
+        self.assertEqual(len(order_N), 0)
 
     def test_game_start(self):
         game = make_game()

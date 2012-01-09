@@ -225,8 +225,21 @@ class Game(models.Model):
 
         # Create FinishedGamePlayer objects, using
         # ordering based on score objects
-        for order, player_score in enumerate(sorted_scores):
+
+        # Start the ordering at 0
+        order = 0
+        # Start with the lowest score
+        previous_score = sorted_scores[0][1]["score"]
+
+        for player_score in sorted_scores:
             player, score = player_score
+
+            # If score was lower for previous player,
+            # increase the order.
+            # This way equal scores will have equal order
+            if score["score"] > previous_score:
+                order += 1
+            previous_score = score["score"]
 
             fgp = FinishedGamePlayer.objects.create(
                 player=player,
@@ -274,7 +287,6 @@ class FinishedGamePlayer(models.Model):
     dnf = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ("player", "game", "order")
         ordering = ('order',)
 
     def order_display(self):
@@ -292,6 +304,10 @@ class FinishedGamePlayer(models.Model):
 class FinishedGame(models.Model):
     game = models.OneToOneField(Game)
     players = models.ManyToManyField(FinishedGamePlayer)
+
+    @property
+    def winners(self):
+        return self.players.filter(order=0)
 
 
 class GameHole(models.Model):
