@@ -289,6 +289,9 @@ class FinishedGamePlayer(models.Model):
     class Meta:
         ordering = ('order',)
 
+    def __unicode__(self):
+        return self.player.__unicode__()
+
     def order_display(self):
         return self.order + 1
 
