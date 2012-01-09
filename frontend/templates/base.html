@@ -36,7 +36,7 @@
                     <ul>
                         <li><a href="{% url "golfstats-games-games" %}">List</a></li>
                         {% if user.is_authenticated %}
-                        <li><a href="{% url "golfstats-games-games-create" %}">Start game</a></li>
+                        <li><a href="{% url "golfstats-games-games-create" %}">Create new game</a></li>
                         {% endif %}
                     </ul>
                 </li>

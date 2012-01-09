@@ -50,8 +50,11 @@ function addPlayerData(data) {
 
 {% block content %}
 
-<h1>Stats for {{ player.name }}</h1>
-<p><a href="{% url "golfstats-players-players-detail" player.id %}">Back</a></p>
+<h1>Stats for
+    <a href="{% url "golfstats-players-players-detail" player.id %}">
+        {{ player.name }}
+    </a>
+</h1>
 
 {% player_courses player player_courses %}
 
