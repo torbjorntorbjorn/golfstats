@@ -175,14 +175,14 @@ class Game(models.Model):
                         gamehole.player))
 
             # Count this hole for this player
-            player_hole_count[player] += 1
+            player_hole_count[gamehole.player] += 1
 
         # Check that all players have player the correct
         # number of holes
-        hole_count = self.course.coursehole_set.count()
+        all_holes_count = self.course.coursehole_set.count()
 
         for player, hole_count in player_hole_count.items():
-            if hole_count is not hole_count:
+            if hole_count != all_holes_count:
                 raise ValidationError(
                     "Player %s has not played the correct number of holes" % (
                         player))
