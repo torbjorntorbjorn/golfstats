@@ -237,10 +237,10 @@ for game_row in cur.fetchall():
     # Some games are finished, but everybody has DNF
     if game.dnf_everybody():
         game.abort()
-        result="Aborted"
+        result = "Aborted"
     else:
         game.finish()
-        result="Finished"
+        result = "Finished"
 
     # start and finish methods have saved datetime.now() as
     # timestamps, we need to update from imported game
