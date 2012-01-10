@@ -269,6 +269,33 @@ class GamesTest(TestCase):
         order_N = game.finishedgame.players.exclude(order__in=[0, 1, 2])
         self.assertEqual(len(order_N), 0)
 
+    def test_finished_game_player_ordering_one_dnf(self):
+        # Make, start and play game
+        game = make_game()
+
+        game.start()
+        game.save()
+
+        play_game(game)
+
+        # play_game leaves everything at par,
+        # so we need to adjust to get a DNF result
+        p = game.players.all()[0]
+        h = game.gamehole_set.filter(player=p)[0]
+        h.throws = 0
+        h.save()
+
+        game.finish()
+        game.save()
+
+        # Check that only our player has order == 1
+        self.assertEqual([x.player for x in
+            game.finishedgame.players.filter(order=1)], [p])
+
+        # Check that all other players are order == 0
+        self.assertEqual(len(game.finishedgame.players.filter(order=0)),
+            len(game.players.all()) - 1)
+
     def test_finished_game_everybody_dnf(self):
         # Make, start and play game
         game = make_game()

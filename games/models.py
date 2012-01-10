@@ -241,13 +241,24 @@ class Game(models.Model):
         # Create FinishedGamePlayer objects, using
         # ordering based on score objects
 
+        # Find score of all player that are not DNF
+        non_dnfs = [x[1]["score"] for x in sorted_scores
+            if not x[1]["dnf"]]
+        dnfs = []
+
+        # Start with the lowest score for non-DNF player
+        previous_score = min(non_dnfs)
+
         # Start the ordering at 0
         order = 0
-        # Start with the lowest score
-        previous_score = sorted_scores[0][1]["score"]
 
         for player_score in sorted_scores:
             player, score = player_score
+
+            # Stow away the DNF players and add them last
+            if score["dnf"]:
+                dnfs.append(player_score)
+                continue
 
             # If score was lower for previous player,
             # increase the order.
@@ -256,6 +267,21 @@ class Game(models.Model):
                 order += 1
             previous_score = score["score"]
 
+            fgp = FinishedGamePlayer.objects.create(
+                player=player,
+                game=self,
+                order=order,
+                score=score["score"],
+                throws=score["throws"],
+                ob_throws=score["ob_throws"],
+                dnf=score["dnf"],
+            )
+
+            finished_game.players.add(fgp)
+
+        # Increase the order by one for DNF players
+        order += 1
+        for player, score in dnfs:
             fgp = FinishedGamePlayer.objects.create(
                 player=player,
                 game=self,
