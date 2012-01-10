@@ -287,12 +287,20 @@ class HoleScoreCssClassNode(template.Node):
         except VariableDoesNotExist:
             return ''
 
+        classes = []
         throws = gamehole.throws
         par = gamehole.coursehole.hole.par
 
         if throws > par:
-            return 'overpar'
-        elif throws < par:
-            return 'belowpar'
-        else:
-            return 'par'
+            classes.append("overpar")
+
+        if throws < par and throws != 0:
+            classes.append("belowpar")
+
+        if throws == par:
+            classes.append("par")
+
+        if throws == 0:
+            classes.append("no-throws")
+
+        return " ".join(classes)
