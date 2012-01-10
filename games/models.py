@@ -188,18 +188,18 @@ class Game(models.Model):
                     "Player %s has not played the correct number of holes" % (
                         player))
 
-        # Check that at least one player has finished
-        # the entire course
+        # Check that at least one player has finished the entire course
+        found_non_dnf = False
+
         for player in self.players.all():
-            # Get all holes that are DNF for this player
+            # Get count for all holes that are DNF for this player
             dnf_gameholes = self.gamehole_set.filter(
-                player=player).filter(throws=0)
+                player=player).filter(throws=0).count()
 
-            if dnf_gameholes.count() != all_holes_count:
-                # We break out out the loop if we find someone
-                # who has finsished the course
-                break
+            if dnf_gameholes == 0:
+                found_non_dnf = True
 
+        if not found_non_dnf:
             # Will only be reached if no players have finished the course
             raise ValidationError("No players have finished the course")
 

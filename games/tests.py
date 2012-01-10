@@ -311,6 +311,26 @@ class GamesTest(TestCase):
             h.throws = 0
             h.save()
 
+        # Ensure that one can't finish a game with zero throws
+        self.assertRaises(ValidationError, game.finish)
+
+        # Make, start and play game
+        game = make_game()
+
+        game.start()
+        game.save()
+
+        play_game(game)
+
+        # play_game leaves everything at par,
+        # so we need to adjust to get a DNF result
+        for player in game.players.all():
+            h = game.gamehole_set.filter(player=player)[0]
+            h.throws = 0
+            h.save()
+
+        # Ensure that a game cannot finished with 1 missing
+        # game per player
         self.assertRaises(ValidationError, game.finish)
 
     def test_game_start(self):
