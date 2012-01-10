@@ -171,7 +171,7 @@ class Game(models.Model):
             # Is this player in this game ?
             if gamehole.player not in player_hole_count:
                 raise ValidationError(
-                    "Player %s has played a hole, but is playing this game" % (
+                    "Player %s has played a hole, but is not playing this game" % (
                         gamehole.player))
 
             # Count this hole for this player
