@@ -179,6 +179,8 @@ game_query = """SELECT * FROM `main_game`
 cur.execute(game_query, (2, ))
 
 for game_row in cur.fetchall():
+    print "Started original id %s" % (game_row["id"])
+
     coursedata = courses[game_row["track_id"]]
 
     course = coursedata["course"]
@@ -232,7 +234,13 @@ for game_row in cur.fetchall():
                 coursehole=courseholes[score_row['hole_id']],
             )
 
-    game.finish()
+    # Some games are finished, but everybody has DNF
+    if game.dnf_everybody():
+        game.abort()
+        result="Aborted"
+    else:
+        game.finish()
+        result="Finished"
 
     # start and finish methods have saved datetime.now() as
     # timestamps, we need to update from imported game
@@ -241,8 +249,8 @@ for game_row in cur.fetchall():
 
     game.save()
 
-    print 'Finished game %s (original ID: %s) on %s' % \
-        (game.id, game_row['id'], game.course)
+    print '%s game %s (original ID: %s) on %s' % \
+        (result, game.id, game_row['id'], game.course)
 
 
 # Now, iterate over players and set "created" to the timestamp
