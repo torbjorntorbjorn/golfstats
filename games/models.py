@@ -159,6 +159,18 @@ class Game(models.Model):
             game=self,
         )
 
+    # Check that at least one player has finished the entire course
+    def dnf_everybody(self):
+        for player in self.players.all():
+            # Get count for all holes that are DNF for this player
+            dnf_gameholes = self.gamehole_set.filter(
+                player=player).filter(throws=0).count()
+
+            if dnf_gameholes == 0:
+                return False
+
+        return True
+
     def _game_completed(self):
         # Will be a map of player and number of holes played
         player_hole_count = {}
@@ -188,19 +200,8 @@ class Game(models.Model):
                     "Player %s has not played the correct number of holes" % (
                         player))
 
-        # Check that at least one player has finished the entire course
-        found_non_dnf = False
-
-        for player in self.players.all():
-            # Get count for all holes that are DNF for this player
-            dnf_gameholes = self.gamehole_set.filter(
-                player=player).filter(throws=0).count()
-
-            if dnf_gameholes == 0:
-                found_non_dnf = True
-
-        if not found_non_dnf:
-            # Will only be reached if no players have finished the course
+        # Everyone is DNF ?
+        if self.dnf_everybody():
             raise ValidationError("No players have finished the course")
 
         return True
