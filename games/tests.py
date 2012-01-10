@@ -269,6 +269,23 @@ class GamesTest(TestCase):
         order_N = game.finishedgame.players.exclude(order__in=[0, 1, 2])
         self.assertEqual(len(order_N), 0)
 
+    def test_finished_game_everybody_dnf(self):
+        # Make, start and play game
+        game = make_game()
+
+        game.start()
+        game.save()
+
+        play_game(game)
+
+        # play_game leaves everything at par,
+        # so we need to adjust to get a DNF result
+        for h in game.gamehole_set.all():
+            h.throws = 0
+            h.save()
+
+        self.assertRaises(ValidationError, game.finish)
+
     def test_game_start(self):
         game = make_game()
 
